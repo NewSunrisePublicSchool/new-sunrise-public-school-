@@ -29,7 +29,7 @@ function makeIds(name:string,dob:string){
 
 export default function Admission(){
  const [f,setF]=useState<any>({}),[done,setDone]=useState<any>(null),[err,setErr]=useState(''),[busy,setBusy]=useState(false)
- const set=(k:string,v:string)=>setF((x:any)=>({...x,[k]:v}))
+ const set=(k:string,v:any)=>setF((x:any)=>({...x,[k]:v}))
  async function submit(e:any){
   e.preventDefault();setBusy(true);setErr('')
   try{
