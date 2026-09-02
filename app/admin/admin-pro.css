@@ -1,0 +1,48 @@
+/* Professional admin command-center layer */
+.adminShell{grid-template-columns:280px 1fr!important;background:#f3f6f8!important}
+.adminShell aside{padding:22px 16px!important;background:linear-gradient(180deg,#061f35 0%,#082d4d 55%,#0a3b5f 100%)!important;gap:10px!important;box-shadow:12px 0 35px rgba(5,31,50,.12)}
+.adminBrand{padding:4px 10px 24px!important;margin-bottom:6px;border-bottom:1px solid rgba(255,255,255,.1)}
+.adminBrand b{font-size:17px}.adminBrand small{display:block;margin-top:3px;color:#9eb7c6}
+.sideLabel{font-size:10px!important;letter-spacing:1.8px;color:#7190a2!important;font-weight:900;padding:10px 12px 4px}
+.adminShell aside>button{position:relative;display:flex!important;align-items:center;gap:12px;width:100%;min-height:54px;padding:10px 12px!important;border:1px solid transparent!important;border-radius:14px!important;background:rgba(255,255,255,.035)!important;color:#bfd0db!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.03);transition:.2s ease}
+.adminShell aside>button i{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:rgba(255,255,255,.07);font-style:normal;font-size:16px;color:#d9e7ee}
+.adminShell aside>button:hover{transform:translateX(3px);background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.1)!important;color:#fff!important}
+.adminShell aside>button.active{background:linear-gradient(135deg,#0b7653,#0d8961)!important;border-color:rgba(255,255,255,.12)!important;color:#fff!important;box-shadow:0 10px 24px rgba(7,102,72,.25)}
+.adminShell aside>button.active i{background:rgba(255,255,255,.16);color:#fff}
+.sideBottom{margin-top:auto;display:grid;gap:8px;padding-top:15px;border-top:1px solid rgba(255,255,255,.1)}
+.sideBottom a,.sideBottom button{display:flex!important;align-items:center;gap:10px!important;border-radius:12px!important;background:rgba(255,255,255,.04)!important}
+.adminMain{padding:34px 4.5%!important;max-width:1600px;width:100%;box-sizing:border-box}
+.adminTop{margin-bottom:26px!important}.adminTop h1{font-size:32px!important;letter-spacing:-.7px}.adminUser{border:1px solid #e0e8ed!important;box-shadow:0 5px 18px rgba(15,45,65,.05)}
+.welcome{border-radius:22px!important;border:1px solid #dfe9e5!important;background:linear-gradient(135deg,#ffffff 0%,#f2faf6 100%)!important;box-shadow:0 15px 45px rgba(13,54,73,.07)!important}
+.statGrid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:16px!important;margin-top:18px}
+.stat{position:relative;overflow:hidden;border:1px solid #e1e9ee!important;border-radius:18px!important;padding:24px!important;background:#fff!important;box-shadow:0 10px 28px rgba(18,45,64,.05)!important;transition:.2s ease}
+.stat:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(18,45,64,.09)!important}.stat strong{font-size:32px!important;color:#082d4d}.stat span{font-weight:800!important;color:#687c88!important}
+/* Make every management action feel like a premium card */
+.settingsGrid{gap:18px!important}.settingCard{border-radius:17px!important;padding:22px!important;box-shadow:0 9px 25px rgba(18,45,64,.05)!important}
+.formPanel,.panel{border-radius:18px!important;box-shadow:0 10px 30px rgba(18,45,64,.055)!important}
+.saveBtn,.openProfileBtn,.smallSave{border-radius:11px!important;box-shadow:0 7px 16px rgba(8,82,61,.12)}
+/* Admissions command center */
+.admissionsWorkspace{animation:adminFade .25s ease}.admissionHeader{padding:26px!important;border-radius:20px!important;box-shadow:0 12px 34px rgba(18,45,64,.06)!important}
+.approvedCounter{min-width:180px!important;border-radius:18px!important;background:linear-gradient(135deg,#08734f,#0b8a62)!important}
+.admissionLayout{grid-template-columns:minmax(0,1.35fr) minmax(330px,.8fr)!important;gap:22px!important}
+.applicationsPanel,.approvedPanel{padding:22px!important;border-radius:20px!important}
+.applicationCard{grid-template-columns:64px 1fr auto!important;min-height:78px;padding:15px!important;border-radius:16px!important;box-shadow:0 5px 16px rgba(18,45,64,.035);border-left-width:5px!important}
+.applicationCard:hover{transform:translateY(-2px)!important;box-shadow:0 12px 28px rgba(18,45,64,.09)!important}
+.appAvatar{width:62px;height:62px;border-radius:16px!important}.openProfileBtn{padding:11px 14px!important;background:#f4faf7!important}
+.approvedPanel{background:linear-gradient(180deg,#ffffff,#f6fbf8)!important;border-color:#d6e8df!important;box-shadow:0 12px 35px rgba(8,83,59,.08)!important}
+.approvedPanel .panelHead{padding-bottom:15px;border-bottom:1px solid #e5eee9}.approvedPanel .panelHead h3{font-size:21px!important}.approvedPanel .panelHead>b{background:#0b7653!important;color:#fff!important;padding:8px 12px!important}
+.studentCard{min-height:82px!important;padding:13px!important;border-radius:15px!important;background:#fff!important;box-shadow:0 5px 18px rgba(18,45,64,.04);border-color:#dce8e3!important}
+.studentCard:hover{transform:translateY(-2px)!important;border-color:#86bea7!important;box-shadow:0 12px 25px rgba(8,83,59,.09)!important}.studentAvatar{box-shadow:0 0 0 4px #edf7f2}
+/* Turn important navigation actions into distinct cards */
+.adminShell aside>button:last-of-type{margin-top:2px}
+.adminShell aside>button[aria-current="true"]{background:#0b7653!important}
+/* Modal buttons are cards rather than flat controls */
+.decisionBar>div{gap:10px!important}.decisionBar button{min-width:125px!important;padding:12px 15px!important;border:1px solid rgba(0,0,0,.04)!important;box-shadow:0 6px 15px rgba(18,45,64,.06);transition:.18s ease}.decisionBar button:hover{transform:translateY(-2px)}
+.profileTabs button{padding:11px 16px!important;border-radius:10px!important;font-weight:800!important}.profileTabs button.active{background:#0b7653!important;color:#fff!important}
+.recordForm{border-radius:16px!important;background:#f7faf9!important;border:1px solid #e1ebe6!important;padding:16px!important}.recordForm button{border-radius:11px!important}
+.recordRow,.resultRow{border-radius:13px!important;box-shadow:0 5px 15px rgba(18,45,64,.035)!important}
+.toast{border-radius:13px!important;box-shadow:0 14px 35px rgba(0,0,0,.18)!important}
+@keyframes adminFade{from{opacity:.7;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media(max-width:1050px){.statGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.admissionLayout{grid-template-columns:1fr!important}}
+@media(max-width:800px){.adminShell{grid-template-columns:1fr!important}.adminShell aside{position:relative;padding:14px!important}.adminShell aside>button{min-height:48px}.adminMain{padding:22px 16px!important}.statGrid{grid-template-columns:1fr 1fr!important}.adminTop{align-items:flex-start;gap:15px}.admissionHeader{display:block!important}.approvedCounter{margin-top:18px}.applicationCard{grid-template-columns:54px 1fr!important}.applicationCard .openProfileBtn{grid-column:2;justify-self:start}.appAvatar{width:52px;height:52px}.adminTop h1{font-size:26px!important}}
+@media(max-width:520px){.statGrid{grid-template-columns:1fr!important}.adminUser{display:none}.admissionHeader h2{font-size:24px!important}.applicationsPanel,.approvedPanel{padding:15px!important}.decisionBar{display:block!important}.decisionBar>div{margin-top:10px}.decisionBar button{min-width:0!important;flex:1}.decisionBar>div{display:grid!important;grid-template-columns:1fr 1fr}.studentCard{grid-template-columns:50px 1fr 15px!important}}
