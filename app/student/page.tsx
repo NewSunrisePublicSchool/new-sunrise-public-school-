@@ -1,4 +1,5 @@
 'use client'
+import './student.css'
 import {useState} from 'react'
 import Link from 'next/link'
 import {supabase} from '../../lib/supabase'
