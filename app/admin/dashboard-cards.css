@@ -1,27 +1,42 @@
-/* Dashboard action-card upgrade for New Sunrise Public School */
-.adminShell aside{padding:20px 14px!important}
-.adminShell aside>button{min-height:64px!important;border-radius:16px!important;padding:10px 12px!important;background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025))!important;border:1px solid rgba(255,255,255,.08)!important;box-shadow:0 8px 22px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.05)!important;position:relative!important;overflow:hidden!important}
-.adminShell aside>button i{width:40px!important;height:40px!important;border-radius:12px!important;background:rgba(255,255,255,.10)!important;box-shadow:0 5px 12px rgba(0,0,0,.12)}
-.adminShell aside>button:hover{transform:translateY(-2px) translateX(2px)!important;background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.05))!important;box-shadow:0 12px 28px rgba(0,0,0,.14)!important}
-.adminShell aside>button.active{background:linear-gradient(135deg,#0b7653,#0d9a6b)!important;box-shadow:0 12px 28px rgba(6,111,76,.28)!important}
-/* Card subtitles */
-.adminShell aside>button:nth-of-type(1)::after{content:'Overview & quick actions'}
-.adminShell aside>button:nth-of-type(2)::after{content:'School information & images'}
-.adminShell aside>button:nth-of-type(3)::after{content:'Publish school announcements'}
-.adminShell aside>button:nth-of-type(4)::after{content:'Manage teachers & faculty'}
-.adminShell aside>button:nth-of-type(5)::after{content:'Manage school photos'}
-.adminShell aside>button:nth-of-type(6)::after{content:'Review applications & students'}
-.adminShell aside>button::after{display:block;margin-left:52px;margin-top:-4px;color:#86a1b0;font-size:10px;font-weight:600;line-height:1.2;letter-spacing:.1px;white-space:nowrap}
-.adminShell aside>button.active::after{color:rgba(255,255,255,.78)}
-/* Make the dashboard itself feel like a command center */
-.welcome{position:relative!important;overflow:hidden!important;padding:30px!important}
-.welcome:after{content:'ADMIN COMMAND CENTER';position:absolute;right:28px;top:24px;font-size:10px;letter-spacing:2px;font-weight:900;color:#0b7653;opacity:.55}
-.statGrid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
-.stat{min-height:128px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;cursor:default}
-.stat:before{content:'LIVE';position:absolute;right:14px;top:13px;font-size:9px;font-weight:900;letter-spacing:1.3px;color:#0b7653;background:#e9f7f1;padding:5px 7px;border-radius:20px}
-.stat strong{line-height:1;margin-bottom:9px}
-.dashboardNote{border:1px solid #dce9e3!important;background:linear-gradient(135deg,#fff,#f5fbf8)!important}
-.dashboardNote h3{font-size:19px!important;color:#082d4d!important}
-@media(max-width:1050px){.statGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
-@media(max-width:800px){.adminShell aside>button{min-height:58px!important}.adminShell aside>button::after{font-size:9px}.welcome:after{display:none}}
-@media(max-width:520px){.statGrid{grid-template-columns:1fr!important}.adminShell aside>button::after{white-space:normal}.adminShell aside>button{min-height:62px!important}}
+/* New Sunrise Public School — reference-style admin dashboard */
+.adminShell{display:block!important;min-height:100vh!important;background:#f7f8fa!important}
+.adminShell>aside{height:94px!important;box-sizing:border-box!important;background:#fff!important;color:#101828!important;padding:0 max(24px,calc((100% - 940px)/2))!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:0!important;border-bottom:1px solid #e2e5e9!important;box-shadow:0 1px 3px rgba(0,0,0,.05)!important;position:relative!important;z-index:10!important}
+.adminBrand{padding:0!important;gap:12px!important;color:#101828!important;min-width:0!important}
+.adminBrand .brandmark{width:48px!important;height:48px!important;border-radius:50%!important;background:#fff!important;color:#087a46!important;border:1px solid #d7e9df!important;display:grid!important;place-items:center!important;font-weight:900!important;box-shadow:none!important}
+.adminBrand b{font-size:0!important;display:block!important;line-height:1.15!important;color:#087a46!important}
+.adminBrand b:after{content:'New Sunrise Public School';font-size:14px!important}
+.adminBrand small{font-size:0!important;font-weight:800!important;color:#101828!important;display:block!important;margin-top:3px!important}
+.adminBrand small:after{content:'Admin Dashboard';font-size:22px!important}
+.adminShell aside .sideLabel,.adminShell aside>button{display:none!important}
+.adminShell aside .sideBottom{margin-left:auto!important;display:flex!important;align-items:center!important;gap:10px!important}
+.adminShell aside .sideBottom a{display:none!important}
+.adminShell aside .sideBottom button{display:block!important;background:#e50914!important;color:#fff!important;border-radius:8px!important;padding:10px 18px!important;font-weight:800!important;text-align:center!important;box-shadow:none!important}
+.adminMain{padding:24px 20px 50px!important;max-width:940px!important;margin:0 auto!important}
+.adminTop{display:none!important}
+.welcome{background:linear-gradient(105deg,#087a3d,#05a33f)!important;color:#fff!important;border:0!important;border-radius:13px!important;box-shadow:0 5px 12px rgba(0,90,40,.16)!important;padding:22px 18px!important;margin:0 0 24px!important;min-height:99px!important;box-sizing:border-box!important}
+.welcome:after{display:none!important}
+.welcome .adminKicker{font-size:11px!important;letter-spacing:0!important;color:#e8fff0!important;opacity:1!important}
+.welcome h2{font-size:20px!important;margin:5px 0 8px!important;color:#fff!important}
+.welcome p{font-size:11px!important;margin:0!important;color:#effff5!important}
+.viewBtn{display:none!important}
+.statGrid{display:none!important}
+.actionSection{margin:0!important;padding:0!important;background:transparent!important;border:0!important}
+.sectionHeading{display:none!important}
+.dashboardActionGrid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:18px!important}
+.dashboardActionCard{position:relative!important;min-height:214px!important;box-sizing:border-box!important;background:#fff!important;border:1px solid #dfe3e7!important;border-radius:11px!important;padding:18px!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;text-align:left!important;box-shadow:0 1px 3px rgba(16,24,40,.06)!important;cursor:pointer!important;color:#101828!important;transition:transform .15s,box-shadow .15s,border-color .15s!important}
+.dashboardActionCard:hover{transform:translateY(-2px)!important;box-shadow:0 7px 18px rgba(16,24,40,.10)!important;border-color:#cfd5da!important}
+.dashboardActionCard.featured{border-left:1px solid #dfe3e7!important}
+.actionIcon{width:36px!important;height:36px!important;border-radius:9px!important;background:#d5f7e5!important;display:grid!important;place-items:center!important;font-size:21px!important;margin-bottom:15px!important}
+.dashboardActionCard:nth-child(3) .actionIcon{background:#f0f2f5!important}
+.dashboardActionCard:nth-child(4) .actionIcon{background:#eee3ff!important}
+.dashboardActionCard:nth-child(5) .actionIcon{background:#d5f7e5!important}
+.dashboardActionCard:nth-child(6) .actionIcon{background:#dbeafe!important}
+.actionText{display:block!important;min-height:69px!important}
+.actionText b{display:block!important;font-size:14px!important;line-height:1.25!important;color:#0b1324!important;margin-bottom:8px!important}
+.actionText small{display:block!important;font-size:10.5px!important;line-height:1.45!important;color:#536273!important}
+.actionCount{display:inline-flex!important;align-items:baseline!important;gap:5px!important;margin-top:auto!important;font-size:9px!important;color:#667085!important}
+.actionArrow{font-size:11px!important;color:#008c4a!important;font-weight:800!important;margin-top:13px!important}
+.actionArrow:after{content:' Open'!important}
+.dashboardNote{margin-top:20px!important}
+@media(max-width:850px){.dashboardActionGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.adminShell>aside{padding:0 20px!important}}
+@media(max-width:520px){.adminShell>aside{height:82px!important;padding:0 14px!important}.adminBrand .brandmark{width:40px!important;height:40px!important}.adminBrand b:after{font-size:11px!important}.adminBrand small:after{font-size:17px!important}.adminShell aside .sideBottom button{padding:8px 12px!important;font-size:12px!important}.adminMain{padding:16px 12px 35px!important}.dashboardActionGrid{grid-template-columns:1fr!important;gap:12px!important}.dashboardActionCard{min-height:190px!important}}
