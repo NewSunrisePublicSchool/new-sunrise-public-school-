@@ -11,9 +11,9 @@ export default function AdminBackToDashboard(){
     const checkAdminRoute=async()=>{
       if(!window.location.pathname.startsWith('/admin')) return
       const {data:{session}}=await supabase.auth.getSession()
-      if(!session){ if(active) window.location.replace('/admin'); return }
+      if(!session){if(active)setVisible(false);return}
       const {data,error}=await supabase.from('admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle()
-      if(error||!data){await supabase.auth.signOut();if(active) window.location.replace('/');return}
+      if(error||!data){await supabase.auth.signOut();if(active)window.location.replace('/');return}
       if(active)setVisible(Boolean(document.querySelector('.adminShell')))
     }
     checkAdminRoute()
