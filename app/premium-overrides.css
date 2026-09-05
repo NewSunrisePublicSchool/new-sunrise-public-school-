@@ -1,0 +1,93 @@
+.site-premium{font-size:16px}
+.announcement{font-size:13px}
+.premiumBrand strong,.footerIdentity strong{font-size:18px}
+.premiumBrand small,.footerIdentity small{font-size:11px}
+.premiumLinks{font-size:14px}
+.studentButton,.admissionButton,.heroPrimary,.heroGhost{font-size:13px}
+.heroKicker{font-size:12px}
+.heroCopy p{font-size:20px;line-height:1.7}
+.heroTrust{font-size:13px}
+.sideLabel{font-size:11px}
+.heroSideCard p{font-size:14px}
+.scrollCue{font-size:11px}
+.metricStrip strong{font-size:24px}
+.metricStrip span{font-size:11px}
+.sectionEyebrow{font-size:11px}
+.sectionCopy p{font-size:16px;line-height:1.85}
+.sectionCopy .lead{font-size:18px}
+.valueRows b{font-size:12px}
+.valueRows span{font-size:14px}
+.valueRows small{font-size:12px}
+.underLink,.lightLink{font-size:12px}
+.sectionHeading>p{font-size:15px;line-height:1.8}
+.academicGrid p{font-size:11px}
+.academicGrid article>span:not(.cardNumber){font-size:14px}
+.academicGrid a{font-size:12px}
+.campusIntro p{font-size:15px}
+.campusFeatures b{font-size:12px}
+.campusFeatures strong{font-size:22px}
+.campusFeatures span{font-size:13px}
+.facultyCard p{font-size:12px}
+.facultyCard small{font-size:12px}
+.updateMeta span{font-size:11px}
+.updateMeta b{font-size:10px}
+.updateCard p{font-size:13px;line-height:1.75}
+.updateCard a{font-size:11px}
+.galleryHeading h2{font-size:48px}
+.admissionPremium p{font-size:15px}
+.footerIdentity p,.footerTop a,.footerTop p{font-size:13px}
+.footerTop h4{font-size:12px}
+.footerBottom{font-size:11px}
+
+@media(max-width:1050px){.premiumLinks{font-size:13px}.sectionCopy h2,.sectionHeading h2{font-size:42px}}
+@media(max-width:850px){.announcement{font-size:12px}.premiumBrand strong{font-size:16px}.heroCopy h1{font-size:clamp(44px,12vw,66px);letter-spacing:-2px}.heroCopy p{font-size:18px}.heroTrust{font-size:12px}.metricStrip strong{font-size:21px}.metricStrip span{font-size:10px}.sectionCopy h2,.sectionHeading h2{font-size:36px}.sectionCopy p{font-size:15px}.sectionCopy .lead{font-size:17px}.academicGrid article>span:not(.cardNumber){font-size:13px}.campusIntro p{font-size:14px}.campusFeatures strong{font-size:20px}.campusFeatures span{font-size:12px}.galleryHeading h2{font-size:38px}.admissionPremium p{font-size:14px}.footerIdentity p,.footerTop a,.footerTop p{font-size:12px}}
+
+/* Premium motion + subtle 3D interaction */
+.premiumHero{overflow:hidden}
+.heroGlow{position:absolute;border-radius:50%;pointer-events:none;filter:blur(2px);opacity:.22;mix-blend-mode:screen}
+.heroGlowOne{width:360px;height:360px;right:12%;top:10%;background:radial-gradient(circle,rgba(226,191,101,.42),transparent 68%);animation:orbFloat 9s ease-in-out infinite}
+.heroGlowTwo{width:260px;height:260px;left:48%;bottom:-90px;background:radial-gradient(circle,rgba(60,180,170,.25),transparent 68%);animation:orbFloat 12s ease-in-out infinite reverse}
+.premiumHero .heroInner{position:relative;z-index:2}
+.heroCopy,.heroSideCard{animation:heroRise .9s cubic-bezier(.2,.75,.25,1) both}
+.heroSideCard{animation-delay:.18s;transform-style:preserve-3d}
+.heroCopy h1{text-shadow:0 10px 35px rgba(0,0,0,.2)}
+.heroPrimary,.admissionButton,.studentButton,.heroGhost{transition:transform .28s cubic-bezier(.2,.75,.25,1),box-shadow .28s cubic-bezier(.2,.75,.25,1),background .28s ease}
+.heroPrimary:hover,.admissionButton:hover,.studentButton:hover,.heroGhost:hover{transform:translateY(-4px);box-shadow:0 18px 35px rgba(0,0,0,.18)}
+.heroPrimary:active,.admissionButton:active,.studentButton:active,.heroGhost:active{transform:translateY(-1px) scale(.98)}
+.metricStrip div{transition:transform .3s cubic-bezier(.2,.75,.25,1),background .3s ease}
+.metricStrip div:hover{transform:translateY(-5px);background:#fbfcfa}
+.sectionVisual{transform-style:preserve-3d;perspective:1000px}
+.sectionVisual img{transition:transform .7s cubic-bezier(.2,.75,.25,1),filter .7s ease;box-shadow:0 25px 55px rgba(7,37,55,.13)}
+.sectionVisual:hover img{transform:rotateY(-3deg) rotateX(2deg) translateZ(10px) scale(1.015);filter:saturate(1.04)}
+.visualBadge{box-shadow:0 18px 35px rgba(7,37,55,.22);transition:transform .45s cubic-bezier(.2,.75,.25,1)}
+.sectionVisual:hover .visualBadge{transform:translateZ(24px) rotate(-2deg)}
+.academicGrid,.facultyGrid,.updatesGrid,.campusFeatures{perspective:1100px}
+.academicGrid article,.facultyCard,.updateCard,.campusFeatures div{transform-style:preserve-3d;transition:transform .4s cubic-bezier(.2,.75,.25,1),box-shadow .4s cubic-bezier(.2,.75,.25,1),border-color .4s ease}
+.academicGrid article:hover{transform:translateY(-10px) rotateX(2deg) rotateY(-1deg);box-shadow:0 25px 55px rgba(12,49,69,.15);border-color:#c9ad68}
+.facultyCard{overflow:hidden;box-shadow:0 12px 30px rgba(12,49,69,.04)}
+.facultyCard:hover{transform:translateY(-9px) rotateX(1deg);box-shadow:0 25px 55px rgba(12,49,69,.15);border-color:#c9ad68}
+.facultyCard:hover .facultyPhoto img{transform:scale(1.08) rotate(.4deg)}
+.updateCard:hover{transform:translateY(-8px);box-shadow:0 24px 48px rgba(12,49,69,.12);border-color:#c9ad68}
+.premiumGalleryGrid{perspective:1000px}
+.premiumGalleryGrid img{transition:transform .55s cubic-bezier(.2,.75,.25,1),filter .55s ease,box-shadow .55s ease}
+.premiumGalleryGrid img:hover{transform:scale(1.035) translateZ(12px);filter:saturate(1.06);box-shadow:0 20px 45px rgba(0,0,0,.25);position:relative;z-index:2}
+.campusFeatures div:hover{transform:translateX(7px);background:rgba(255,255,255,.035)}
+.admissionPremium{position:relative;overflow:hidden}
+.admissionPremium:before{content:'';position:absolute;width:340px;height:340px;border:1px solid rgba(255,255,255,.2);border-radius:50%;right:8%;top:50%;transform:translateY(-50%);animation:ringPulse 5s ease-in-out infinite}
+.admissionPremium>*{position:relative;z-index:1}
+.motionReady{opacity:0;transform:translateY(34px);transition:opacity .8s cubic-bezier(.2,.75,.25,1),transform .8s cubic-bezier(.2,.75,.25,1)}
+.motionReady.motionVisible{opacity:1;transform:none}
+.motionVisible .sectionEyebrow{animation:fadeSlide .65s .05s both}
+.motionVisible .sectionHeading h2,.motionVisible .sectionCopy h2{animation:fadeSlide .75s .1s both}
+.motionVisible .sectionHeading>p,.motionVisible .sectionCopy>p{animation:fadeSlide .75s .18s both}
+.motionVisible .academicGrid article:nth-child(1),.motionVisible .facultyCard:nth-child(1),.motionVisible .updateCard:nth-child(1),.motionVisible .campusFeatures div:nth-child(1){animation:cardIn .65s .08s both}
+.motionVisible .academicGrid article:nth-child(2),.motionVisible .facultyCard:nth-child(2),.motionVisible .updateCard:nth-child(2),.motionVisible .campusFeatures div:nth-child(2){animation:cardIn .65s .16s both}
+.motionVisible .academicGrid article:nth-child(3),.motionVisible .facultyCard:nth-child(3),.motionVisible .updateCard:nth-child(3),.motionVisible .campusFeatures div:nth-child(3){animation:cardIn .65s .24s both}
+.motionVisible .facultyCard:nth-child(4),.motionVisible .campusFeatures div:nth-child(4){animation:cardIn .65s .32s both}
+@keyframes heroRise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes cardIn{from{opacity:0;transform:translateY(25px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes orbFloat{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-18px,20px,0) scale(1.08)}}
+@keyframes ringPulse{0%,100%{transform:translateY(-50%) scale(.92);opacity:.45}50%{transform:translateY(-50%) scale(1.08);opacity:.9}}
+@media(max-width:850px){.heroGlow{display:none}.admissionPremium:before{right:-130px}.motionReady{transform:translateY(22px)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}.motionReady{opacity:1;transform:none}}
