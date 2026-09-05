@@ -4,23 +4,149 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '../lib/supabase'
 
-const fallback = {school_name:'New Sunrise Public School',tagline:'Learn • Lead • Shine',hero_title:'Building Bright Futures Through Quality Education',hero_subtitle:'A caring, modern school community for Nursery to Class 8 in Kallyangaon.',hero_image:'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1800&q=85',logo_url:'',about_image:'https://images.unsplash.com/photo-1497486751825-1233686d5d80?auto=format&fit=crop&w=1200&q=85',principal_image:'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=700&q=85'}
+const fallback = {
+  school_name: 'New Sunrise Public School',
+  tagline: 'Learn • Lead • Shine',
+  hero_title: 'Where curiosity becomes confidence.',
+  hero_subtitle: 'A joyful, disciplined and future-ready learning environment for Nursery to Class 8 in Kallyangaon.',
+  hero_image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=2200&q=88',
+  logo_url: '',
+  about_image: 'https://images.unsplash.com/photo-1497486751825-1233686d5d80?auto=format&fit=crop&w=1400&q=88',
+  principal_image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=88'
+}
+
+const Arrow = () => <span aria-hidden="true">↗</span>
 
 export default function Home() {
- const [settings,setSettings]=useState<Record<string,string>>(fallback),[notices,setNotices]=useState<any[]>([]),[teachers,setTeachers]=useState<any[]>([]),[gallery,setGallery]=useState<any[]>([]),[loading,setLoading]=useState(true)
- useEffect(()=>{async function load(){const [s,n,t,g]=await Promise.all([supabase.from('site_settings').select('key,value'),supabase.from('notices').select('*').order('published_on',{ascending:false}).limit(4),supabase.from('teachers').select('*').order('id').limit(6),supabase.from('gallery').select('*').order('id',{ascending:false}).limit(8)]);const mapped={...fallback} as Record<string,string>;(s.data||[]).forEach((x:any)=>mapped[x.key]=x.value);setSettings(mapped);setNotices(n.data||[]);setTeachers(t.data||[]);setGallery(g.data||[]);setLoading(false)}load()},[])
- return <main>
-  <div className="topbar"><div>📍 Kallyangaon, Bihar</div><div>📞 {settings.phone||'+91 XXXXX XXXXX'}</div></div>
-  <header className="nav"><div className="brand"><div className="brandmark">{settings.logo_url?<img src={settings.logo_url} alt="School logo"/>:'NS'}</div><div><b>{settings.school_name}</b><span>{settings.tagline}</span></div></div><nav><a href="#home">Home</a><a href="#about">About</a><a href="#academics">Academics</a><a href="#faculty">Faculty</a><a href="#gallery">Gallery</a><a href="#notices">Notices</a><Link className="navbtn" href="/admission">Admission</Link><Link href="/student" className="studentNavBtn">🎓 Student Login</Link><Link href="/admin" className="adminlink">Admin</Link></nav></header>
-  <section id="home" className="hero" style={{backgroundImage:`linear-gradient(90deg,rgba(7,36,63,.93),rgba(7,36,63,.56),rgba(7,36,63,.16)),url(${settings.hero_image})`}}><div className="heroContent"><div className="eyebrow">WELCOME TO NEW SUNRISE</div><h1>{settings.hero_title}</h1><p>{settings.hero_subtitle}</p><div className="actions"><Link href="/admission" className="primary">Apply for Admission →</Link><Link href="/student" className="secondary">Student Login</Link><a href="#about" className="secondary">Explore Our School</a></div></div></section>
-  <section className="stats"><div><strong>Nursery–8</strong><span>Classes Offered</span></div><div><strong>2026–27</strong><span>Admissions Open</span></div><div><strong>Dedicated</strong><span>Faculty & Staff</span></div><div><strong>Safe</strong><span>Learning Environment</span></div></section>
-  <section id="about" className="section about"><div className="imageFrame"><img src={settings.about_image} alt="Students learning"/></div><div><div className="eyebrow dark">ABOUT OUR SCHOOL</div><h2>Education that inspires confidence, character and curiosity.</h2><p>New Sunrise Public School is committed to providing a strong academic foundation alongside values, discipline, creativity and practical learning. We believe every child deserves encouragement, individual attention and a joyful place to learn.</p><div className="checks"><span>✓ Child-centred learning</span><span>✓ Strong academic foundation</span><span>✓ Co-curricular development</span><span>✓ Safe and caring campus</span></div><a href="#academics" className="textlink">Discover our approach →</a></div></section>
-  <section id="academics" className="section light"><div className="sectionHead"><div><div className="eyebrow dark">ACADEMICS</div><h2>Learning for every stage</h2></div><p>Age-appropriate teaching, activity-based learning and regular assessment from Nursery to Class 8.</p></div><div className="cards"><div className="card"><div className="icon">01</div><h3>Early Years</h3><p>Nursery, LKG & UKG with play-based foundational learning.</p></div><div className="card"><div className="icon">02</div><h3>Primary School</h3><p>Classes I–V with strong literacy, numeracy, science and social learning.</p></div><div className="card"><div className="icon">03</div><h3>Middle School</h3><p>Classes VI–VIII focused on concepts, problem solving and confidence.</p></div></div></section>
-  <section className="featureBand"><div><div className="eyebrow">WHY FAMILIES CHOOSE US</div><h2>A school where every child can shine.</h2></div><div className="featureGrid"><span>🎯 Focused academics</span><span>🧠 Activity-based learning</span><span>🎨 Creativity & arts</span><span>⚽ Sports & wellness</span><span>💻 Digital learning</span><span>🤝 Values & leadership</span></div></section>
-  <section id="faculty" className="section"><div className="sectionHead"><div><div className="eyebrow dark">OUR FACULTY</div><h2>Meet the people behind learning</h2></div><p>Dedicated educators who guide students with care and consistency.</p></div><div className="teacherGrid">{teachers.map(t=><article className="teacher" key={t.id}><img src={t.image_url||'https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&w=600&q=80'} alt={t.name}/><div><h3>{t.name}</h3><p>{t.subject}</p><small>{t.qualification}</small></div></article>)}{!teachers.length&&!loading&&<div className="empty">Faculty profiles will appear here.</div>}</div></section>
-  <section id="notices" className="section light"><div className="sectionHead"><div><div className="eyebrow dark">NOTICE BOARD</div><h2>Latest school updates</h2></div><Link href="/notices" className="textlink">View all notices →</Link></div><div className="noticeGrid">{notices.map(n=><article className="notice" key={n.id}>{n.image_url&&<img className="noticeImage" src={n.image_url} alt=""/>}<div className="date">{new Date(n.published_on).toLocaleDateString('en-IN',{day:'2-digit',month:'short'})}</div><div><h3>{n.title}</h3><p>{n.body}</p>{n.important&&<b className="pill">IMPORTANT</b>}</div></article>)}</div></section>
-  <section id="gallery" className="section"><div className="sectionHead"><div><div className="eyebrow dark">SCHOOL LIFE</div><h2>Moments from our campus</h2></div><Link href="/gallery" className="textlink">View gallery →</Link></div><div className="galleryGrid">{gallery.map(g=><img key={g.id} src={g.image_url} alt={g.title}/>)}{!gallery.length&&<><img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=900&q=80" alt="School life"/><img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=900&q=80" alt="Students"/><img src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=900&q=80" alt="Campus"/></>}</div></section>
-  <section className="cta"><div><div className="eyebrow">ADMISSIONS 2026–27</div><h2>Give your child a bright beginning.</h2><p>Admissions are open for Nursery to Class 8.</p></div><Link href="/admission" className="primary">Start Application →</Link></section>
-  <footer><div className="footerMain"><div><div className="brand footerBrand"><div className="brandmark">NS</div><div><b>{settings.school_name}</b><span>{settings.tagline}</span></div></div><p>Quality education, strong values and a brighter future for every child.</p></div><div><h4>Quick Links</h4><a href="#about">About</a><a href="#academics">Academics</a><a href="#gallery">Gallery</a><Link href="/admission">Admission</Link><Link href="/student">Student Login</Link></div><div><h4>Contact</h4><p>{settings.address||'Kallyangaon, Bihar, India'}</p><p>{settings.phone||'+91 XXXXX XXXXX'}</p><p>{settings.email||'info@newsunrisepublicschool.in'}</p></div></div><div className="copyright">© {new Date().getFullYear()} {settings.school_name}. All rights reserved.</div></footer>
- </main>
+  const [settings, setSettings] = useState<Record<string, string>>(fallback)
+  const [notices, setNotices] = useState<any[]>([])
+  const [teachers, setTeachers] = useState<any[]>([])
+  const [gallery, setGallery] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      const [s, n, t, g] = await Promise.all([
+        supabase.from('site_settings').select('key,value'),
+        supabase.from('notices').select('*').order('published_on', { ascending: false }).limit(4),
+        supabase.from('teachers').select('*').order('id').limit(6),
+        supabase.from('gallery').select('*').order('id', { ascending: false }).limit(8)
+      ])
+      const mapped = { ...fallback } as Record<string, string>
+      ;(s.data || []).forEach((x: any) => { mapped[x.key] = x.value })
+      setSettings(mapped)
+      setNotices(n.data || [])
+      setTeachers(t.data || [])
+      setGallery(g.data || [])
+      setLoading(false)
+    }
+    load()
+  }, [])
+
+  return (
+    <main className="site-premium">
+      <div className="announcement">
+        <div><span className="liveDot" /> Admissions open for 2026–27 · Nursery to Class 8</div>
+        <div className="announcementRight"><span>📍 Kallyangaon, Bihar</span><span>☎ {settings.phone || '+91 XXXXX XXXXX'}</span></div>
+      </div>
+
+      <header className="premiumNav">
+        <a href="#home" className="premiumBrand">
+          <div className="premiumLogo">{settings.logo_url ? <img src={settings.logo_url} alt="School logo" /> : 'NS'}</div>
+          <div><strong>{settings.school_name}</strong><small>{settings.tagline}</small></div>
+        </a>
+        <nav className="premiumLinks" aria-label="Main navigation">
+          <a href="#home">Home</a><a href="#about">About</a><a href="#academics">Academics</a><a href="#faculty">Faculty</a><a href="#campus">Campus</a><a href="#notices">Updates</a>
+        </nav>
+        <div className="premiumActions">
+          <Link href="/student" className="studentButton">Student Login</Link>
+          <Link href="/admission" className="admissionButton">Admissions <Arrow /></Link>
+        </div>
+      </header>
+
+      <section id="home" className="premiumHero" style={{ backgroundImage: `linear-gradient(100deg,rgba(5,28,48,.94) 0%,rgba(5,28,48,.72) 43%,rgba(5,28,48,.18) 100%),url(${settings.hero_image})` }}>
+        <div className="heroInner">
+          <div className="heroCopy">
+            <div className="heroKicker"><span>NEW SUNRISE</span> · ESTABLISHING A BRIGHTER TOMORROW</div>
+            <h1>{settings.hero_title}</h1>
+            <p>{settings.hero_subtitle}</p>
+            <div className="heroButtons">
+              <Link href="/admission" className="heroPrimary">Begin Admission <Arrow /></Link>
+              <a href="#about" className="heroGhost">Discover our school <Arrow /></a>
+            </div>
+            <div className="heroTrust"><span>✓ Nursery–Class 8</span><span>✓ Child-centred learning</span><span>✓ Safe & caring environment</span></div>
+          </div>
+          <div className="heroSideCard">
+            <span className="sideLabel">A PLACE TO</span>
+            <strong>Learn.<br />Lead.<br /><em>Shine.</em></strong>
+            <div className="sideLine" />
+            <p>Building strong foundations, confident minds and good character.</p>
+          </div>
+        </div>
+        <a className="scrollCue" href="#about">Scroll to explore <span>↓</span></a>
+      </section>
+
+      <section className="metricStrip">
+        <div><strong>Nursery–8</strong><span>Classes offered</span></div>
+        <div><strong>2026–27</strong><span>Admissions open</span></div>
+        <div><strong>01 Sep</strong><span>School opening</span></div>
+        <div><strong>Kallyangaon</strong><span>Bihar · 854317</span></div>
+      </section>
+
+      <section id="about" className="premiumSection aboutPremium">
+        <div className="sectionVisual">
+          <div className="visualAccent" />
+          <img src={settings.about_image} alt="Students learning at school" />
+          <div className="visualBadge"><strong>01</strong><span>Our<br />approach</span></div>
+        </div>
+        <div className="sectionCopy">
+          <div className="sectionEyebrow">ABOUT NEW SUNRISE</div>
+          <h2>Education with purpose, warmth and ambition.</h2>
+          <p className="lead">We believe a great school does more than teach lessons. It helps children ask better questions, discover their strengths and grow into responsible, confident people.</p>
+          <p>New Sunrise Public School brings together a strong academic foundation, values, creativity and practical learning in a caring environment designed for every stage from Nursery to Class 8.</p>
+          <div className="valueRows"><div><b>01</b><span>Strong foundations</span><small>Concept-first learning that lasts.</small></div><div><b>02</b><span>Whole-child growth</span><small>Academics, arts, sports and character.</small></div><div><b>03</b><span>Personal attention</span><small>Every child seen, supported and encouraged.</small></div></div>
+          <a href="#academics" className="underLink">Explore our learning approach <Arrow /></a>
+        </div>
+      </section>
+
+      <section id="academics" className="premiumSection academicsPremium">
+        <div className="sectionHeading"><div><div className="sectionEyebrow">ACADEMICS</div><h2>A thoughtful journey through every stage.</h2></div><p>Age-appropriate teaching, active learning and regular assessment help children build knowledge with confidence.</p></div>
+        <div className="academicGrid">
+          <article><span className="cardNumber">01</span><div className="cardRule" /><h3>Early Years</h3><p>Nursery · LKG · UKG</p><span>Play, language, numbers, movement and discovery.</span><a href="#admissions">Learn more <Arrow /></a></article>
+          <article><span className="cardNumber">02</span><div className="cardRule" /><h3>Primary</h3><p>Classes I–V</p><span>Strong literacy, numeracy, science and social understanding.</span><a href="#admissions">Learn more <Arrow /></a></article>
+          <article><span className="cardNumber">03</span><div className="cardRule" /><h3>Middle School</h3><p>Classes VI–VIII</p><span>Concepts, problem-solving, communication and independent thinking.</span><a href="#admissions">Learn more <Arrow /></a></article>
+        </div>
+      </section>
+
+      <section id="campus" className="campusBand">
+        <div className="campusIntro"><div className="sectionEyebrow lightEyebrow">THE NEW SUNRISE EXPERIENCE</div><h2>More than a classroom.</h2><p>A school day shaped by curiosity, creativity, movement, friendship and responsibility.</p></div>
+        <div className="campusFeatures"><div><b>01</b><strong>Focused academics</strong><span>Clear concepts and confident learning.</span></div><div><b>02</b><strong>Creative expression</strong><span>Arts, activities and imagination.</span></div><div><b>03</b><strong>Sports & wellness</strong><span>Healthy habits and team spirit.</span></div><div><b>04</b><strong>Values & leadership</strong><span>Respect, discipline and responsibility.</span></div></div>
+      </section>
+
+      <section id="faculty" className="premiumSection facultyPremium">
+        <div className="sectionHeading"><div><div className="sectionEyebrow">OUR FACULTY</div><h2>People who make learning matter.</h2></div><p>Dedicated educators who guide students with care, consistency and high expectations.</p></div>
+        <div className="facultyGrid">{teachers.map((t, i) => <article className="facultyCard" key={t.id}><div className="facultyPhoto"><img src={t.image_url || 'https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&w=700&q=85'} alt={t.name} /><span>0{i + 1}</span></div><div><h3>{t.name}</h3><p>{t.subject}</p><small>{t.qualification}</small></div></article>)}{!teachers.length && !loading && <div className="emptyPremium">Faculty profiles will appear here.</div>}</div>
+      </section>
+
+      <section id="notices" className="premiumSection updatesPremium">
+        <div className="sectionHeading"><div><div className="sectionEyebrow">FROM THE SCHOOL</div><h2>Latest updates.</h2></div><Link href="/notices" className="underLink">View all updates <Arrow /></Link></div>
+        <div className="updatesGrid">{notices.map(n => <article className="updateCard" key={n.id}>{n.image_url && <img src={n.image_url} alt="" />}<div className="updateMeta"><span>{new Date(n.published_on).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>{n.important && <b>IMPORTANT</b>}</div><h3>{n.title}</h3><p>{n.body}</p><a href="/notices">Read update <Arrow /></a></article>)}{!notices.length && !loading && <div className="emptyPremium">New school updates will appear here.</div>}</div>
+      </section>
+
+      <section className="galleryPremium">
+        <div className="galleryHeading"><div><div className="sectionEyebrow lightEyebrow">SCHOOL LIFE</div><h2>Moments that stay with us.</h2></div><Link href="/gallery" className="lightLink">View gallery <Arrow /></Link></div>
+        <div className="premiumGalleryGrid">{gallery.length ? gallery.map(g => <img key={g.id} src={g.image_url} alt={g.title} />) : <><img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1000&q=88" alt="School life" /><img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1000&q=88" alt="Students learning" /><img src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1000&q=88" alt="School campus" /></>}</div>
+      </section>
+
+      <section id="admissions" className="admissionPremium">
+        <div><div className="sectionEyebrow">ADMISSIONS 2026–27</div><h2>A bright beginning starts here.</h2><p>Applications are open for Nursery to Class 8. Take the first step towards a joyful, purposeful education.</p></div>
+        <Link href="/admission" className="heroPrimary">Start Application <Arrow /></Link>
+      </section>
+
+      <footer className="premiumFooter">
+        <div className="footerTop"><div className="footerIdentity"><div className="premiumLogo">{settings.logo_url ? <img src={settings.logo_url} alt="School logo" /> : 'NS'}</div><div><strong>{settings.school_name}</strong><small>{settings.tagline}</small></div><p>Quality education, strong values and a brighter future for every child.</p></div><div><h4>Explore</h4><a href="#about">About</a><a href="#academics">Academics</a><a href="#faculty">Faculty</a><Link href="/gallery">Gallery</Link><Link href="/notices">Updates</Link></div><div><h4>Admissions</h4><Link href="/admission">Apply for 2026–27</Link><Link href="/student">Student Login</Link><a href="#notices">School Updates</a></div><div><h4>Visit us</h4><p>{settings.address || 'Kallyangaon, Bihar – 854317'}</p><p>{settings.phone || '+91 XXXXX XXXXX'}</p><p>{settings.email || 'info@newsunrisepublicschool.in'}</p></div></div>
+        <div className="footerBottom"><span>© {new Date().getFullYear()} {settings.school_name}. All rights reserved.</span><span>Learn · Lead · Shine</span></div>
+      </footer>
+    </main>
+  )
 }
