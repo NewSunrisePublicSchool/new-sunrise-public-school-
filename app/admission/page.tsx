@@ -6,42 +6,22 @@ import {supabase} from '../../lib/supabase'
 
 const classes=['Nursery','LKG','UKG','Class 1','Class 2','Class 3','Class 4','Class 5','Class 6','Class 7','Class 8']
 
-async function upload(file:File, folder:string, bucket='school-images', returnPublic=true){
- if(!file) return ''
- const allowed=['image/jpeg','image/png','image/webp','application/pdf']
- if(!allowed.includes(file.type)) throw new Error('Please upload JPG, PNG, WEBP or PDF.')
- if(file.size>5*1024*1024) throw new Error('File must be 5 MB or smaller.')
- const ext=(file.name.split('.').pop()||'file').toLowerCase().replace(/[^a-z0-9]/g,'')
- const path=`admissions/${folder}/${crypto.randomUUID()}.${ext}`
- const {error}=await supabase.storage.from(bucket).upload(path,file,{contentType:file.type,cacheControl:'3600',upsert:false})
- if(error) throw error
- if(!returnPublic) return path
- return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl
-}
-
-function makeIds(name:string,dob:string){
- const clean=name.replace(/[^a-zA-Z]/g,'').toUpperCase()
- const first3=(clean+'XXX').slice(0,3)
- const d=new Date(dob+'T00:00:00')
- const dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'), yy=String(d.getFullYear()).slice(-2)
- return {student_unique_id:`NSPS${first3}${dd}${mm}${yy}`}
-}
-
 export default function Admission(){
  const [f,setF]=useState<any>({}),[done,setDone]=useState<any>(null),[err,setErr]=useState(''),[busy,setBusy]=useState(false)
  const set=(k:string,v:any)=>setF((x:any)=>({...x,[k]:v}))
  async function submit(e:any){
   e.preventDefault();setBusy(true);setErr('')
   try{
-   if(!f.dob) throw new Error('Date of birth is required.')
+   const required=['student_name','dob','class_applied','father_name','phone','address']
+   if(required.some(k=>!String(f[k]||'').trim())) throw new Error('Please complete all required fields.')
    if(!f.student_photo||!f.identity_proof) throw new Error('Student photo and identity proof are required.')
-   const photo=await upload(f.student_photo,'student-photos','school-images',true)
-   const proof=await upload(f.identity_proof,'identity-proofs','admission-documents',false)
-   const {student_unique_id}=makeIds(f.student_name,f.dob)
-   const application_number=`NSPS-APP-${Date.now().toString().slice(-8)}`
-   const {data,error}=await supabase.from('admissions').insert({application_number,student_unique_id,student_name:f.student_name,dob:f.dob,class_applied:f.class_applied,father_name:f.father_name,mother_name:f.mother_name,phone:f.phone,email:f.email,address:f.address,message:f.message,student_photo_url:photo,identity_proof_url:proof,status:'pending'}).select('application_number,student_unique_id').single()
-   if(error) throw error
-   setDone(data)
+   const form=new FormData()
+   form.set('student_name',f.student_name.trim());form.set('dob',f.dob);form.set('class_applied',f.class_applied);form.set('father_name',f.father_name.trim());form.set('mother_name',String(f.mother_name||'').trim());form.set('phone',f.phone.trim());form.set('email',String(f.email||'').trim());form.set('address',f.address.trim());form.set('message',String(f.message||'').trim());form.set('student_photo',f.student_photo);form.set('identity_proof',f.identity_proof)
+   const {data,error}=await supabase.functions.invoke('submit-admission',{body:form})
+   if(error) throw new Error(error.message||'Unable to submit application.')
+   if(data?.error) throw new Error(data.error)
+   if(!data?.data) throw new Error('The application could not be confirmed. Please try again.')
+   setDone(data.data)
   }catch(e:any){setErr(e?.message||'Unable to submit application. Please try again.')}finally{setBusy(false)}
  }
  return <div className="formPage"><div className="formHeader"><Link href="/">← New Sunrise Public School</Link><div><span>ADMISSIONS 2026–27</span><h1>Online Admission Application</h1><p>Nursery to Class 8 · Kallyangaon, Bihar</p></div></div>
