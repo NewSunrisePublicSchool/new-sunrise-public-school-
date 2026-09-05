@@ -1,16 +1,25 @@
 'use client'
 
 import {useEffect,useState} from 'react'
+import {supabase} from '../lib/supabase'
 
 export default function AdminBackToDashboard(){
   const [visible,setVisible]=useState(false)
 
   useEffect(()=>{
-    const check=()=>setVisible(Boolean(document.querySelector('.adminShell')))
-    check()
-    const observer=new MutationObserver(check)
+    let active=true
+    const checkAdminRoute=async()=>{
+      if(!window.location.pathname.startsWith('/admin')) return
+      const {data:{session}}=await supabase.auth.getSession()
+      if(!session){ if(active) window.location.replace('/admin'); return }
+      const {data,error}=await supabase.from('admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle()
+      if(error||!data){await supabase.auth.signOut();if(active) window.location.replace('/');return}
+      if(active)setVisible(Boolean(document.querySelector('.adminShell')))
+    }
+    checkAdminRoute()
+    const observer=new MutationObserver(()=>{if(window.location.pathname.startsWith('/admin'))setVisible(Boolean(document.querySelector('.adminShell')))})
     observer.observe(document.body,{childList:true,subtree:true})
-    return()=>observer.disconnect()
+    return()=>{active=false;observer.disconnect()}
   },[])
 
   if(!visible)return null
