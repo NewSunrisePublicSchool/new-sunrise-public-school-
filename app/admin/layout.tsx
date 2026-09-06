@@ -1,21 +1,29 @@
 'use client'
-import {useEffect,useState} from 'react'
-import {createPortal} from 'react-dom'
+import {useEffect} from 'react'
 import {usePathname} from 'next/navigation'
 import type {ReactNode} from 'react'
 import './enquiry-dashboard.css'
 
 function EnquiryCard(){
- const [target,setTarget]=useState<HTMLElement|null>(null)
  useEffect(()=>{
-  const find=()=>setTarget(document.querySelector<HTMLElement>('.dashboardActionGrid'))
-  find()
-  const observer=new MutationObserver(find)
+  let card:HTMLAnchorElement|null=null
+  const mount=()=>{
+   const grid=document.querySelector<HTMLElement>('.dashboardActionGrid')
+   if(!grid){if(card){card.remove();card=null}return}
+   if(card&&card.parentElement===grid)return
+   if(card)card.remove()
+   card=document.createElement('a')
+   card.href='/admin/enquiries'
+   card.className='dashboardActionCard enquiryActionCard'
+   card.innerHTML='<span class="actionIcon">✉️</span><span class="actionText"><b>Enquiries</b><small>View, manage and reply to enquiries received from the school website.</small></span><span class="actionCount">School enquiries</span><span class="actionArrow">→</span>'
+   grid.appendChild(card)
+  }
+  mount()
+  const observer=new MutationObserver(mount)
   observer.observe(document.body,{childList:true,subtree:true})
-  return()=>observer.disconnect()
+  return()=>{observer.disconnect();card?.remove()}
  },[])
- if(!target)return null
- return createPortal(<a href="/admin/enquiries" className="dashboardActionCard enquiryActionCard"><span className="actionIcon">✉️</span><span className="actionText"><b>Enquiries</b><small>View, manage and reply to enquiries received from the school website.</small></span><span className="actionCount">School enquiries</span><span className="actionArrow">→</span></a>,target)
+ return null
 }
 
 export default function AdminLayout({children}:{children:ReactNode}){
