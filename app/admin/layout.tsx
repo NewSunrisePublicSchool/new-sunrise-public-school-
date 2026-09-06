@@ -8,7 +8,6 @@ import './enquiry-dashboard.css'
 function EnquiryCard(){
  const [target,setTarget]=useState<HTMLElement|null>(null)
  useEffect(()=>{
-  if(usePathnameRef()!=='/admin')return
   const find=()=>setTarget(document.querySelector<HTMLElement>('.dashboardActionGrid'))
   find()
   const observer=new MutationObserver(find)
@@ -17,12 +16,6 @@ function EnquiryCard(){
  },[])
  if(!target)return null
  return createPortal(<a href="/admin/enquiries" className="dashboardActionCard enquiryActionCard"><span className="actionIcon">✉️</span><span className="actionText"><b>Enquiries</b><small>View, manage and reply to enquiries received from the school website.</small></span><span className="actionCount">School enquiries</span><span className="actionArrow">→</span></a>,target)
-}
-
-function usePathnameRef(){
- const [path,setPath]=useState('')
- useEffect(()=>setPath(window.location.pathname),[])
- return path
 }
 
 export default function AdminLayout({children}:{children:ReactNode}){
