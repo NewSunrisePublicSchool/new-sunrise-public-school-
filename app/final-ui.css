@@ -1,0 +1,15 @@
+.site-premium .announcement{overflow:hidden}
+.site-premium .announcementTicker{display:flex;align-items:center;min-width:0;flex:1;overflow:hidden}
+.site-premium .announcementMarquee{display:flex;align-items:center;flex:none;white-space:nowrap;animation:announcementScroll 32s linear infinite;will-change:transform}
+.site-premium .announcementMarquee span{display:inline-block;padding-right:90px}
+.site-premium .announcementMarquee:hover{animation-play-state:paused}
+@keyframes announcementScroll{from{transform:translateX(0)}to{transform:translateX(-33.3333%)}}
+.site-premium .announcementRight{position:relative;z-index:2;flex:none;background:#072b45;padding-left:24px}
+.site-premium .premiumFooter .footerIdentity strong{font-size:19px}
+.site-premium .premiumFooter .footerIdentity small{font-size:11px}
+.site-premium .premiumFooter .footerIdentity p{font-size:13px;line-height:1.9}
+.site-premium .premiumFooter .footerTop h4{font-size:12px;letter-spacing:1.8px}
+.site-premium .premiumFooter .footerTop a{font-size:13px;margin:13px 0}
+.site-premium .premiumFooter .footerTop p{font-size:13px;line-height:1.9;margin:10px 0}
+.site-premium .premiumFooter .footerBottom{font-size:11px}
+@media(max-width:850px){.site-premium .announcementTicker{width:100%}.site-premium .announcementMarquee{animation-duration:30s}.site-premium .premiumFooter .footerTop a,.site-premium .premiumFooter .footerTop p{font-size:13px}.site-premium .premiumFooter .footerIdentity p{font-size:13px}}
