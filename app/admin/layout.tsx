@@ -3,30 +3,6 @@ import {useEffect} from 'react'
 import {usePathname} from 'next/navigation'
 import type {ReactNode} from 'react'
 import './enquiry-dashboard.css'
-
-function EnquiryCard(){
- useEffect(()=>{
-  let card:HTMLAnchorElement|null=null
-  const mount=()=>{
-   const grid=document.querySelector<HTMLElement>('.dashboardActionGrid')
-   if(!grid){if(card){card.remove();card=null}return}
-   if(card&&card.parentElement===grid)return
-   if(card)card.remove()
-   card=document.createElement('a')
-   card.href='/admin/enquiries'
-   card.className='dashboardActionCard enquiryActionCard'
-   card.innerHTML='<span class="actionIcon">✉️</span><span class="actionText"><b>Enquiries</b><small>View, manage and reply to enquiries received from the school website.</small></span><span class="actionCount">School enquiries</span><span class="actionArrow">→</span>'
-   grid.appendChild(card)
-  }
-  mount()
-  const observer=new MutationObserver(mount)
-  observer.observe(document.body,{childList:true,subtree:true})
-  return()=>{observer.disconnect();card?.remove()}
- },[])
- return null
-}
-
-export default function AdminLayout({children}:{children:ReactNode}){
- const path=usePathname()
- return <>{children}{path==='/admin'&&<EnquiryCard/>}</>
-}
+function DashboardCardLinks(){
+ useEffect(()=>{let enquiry:HTMLAnchorElement|null=null;let approved:HTMLElement|null=null;const go=(e:Event)=>{e.preventDefault();e.stopImmediatePropagation();window.location.href='/admin/students'};const mount=()=>{const grid=document.querySelector<HTMLElement>('.dashboardActionGrid');if(grid&&!enquiry){enquiry=document.createElement('a');enquiry.href='/admin/enquiries';enquiry.className='dashboardActionCard enquiryActionCard';enquiry.innerHTML='<span class="actionIcon">✉️</span><span class="actionText"><b>Enquiries</b><small>View, manage and reply to enquiries received from the school website.</small></span><span class="actionCount">School enquiries</span><span class="actionArrow">→</span>';grid.appendChild(enquiry)}const cards=grid?.querySelectorAll<HTMLElement>('.dashboardActionCard')||[];const next=Array.from(cards).find(x=>x.textContent?.includes('Approved Students'))||null;if(approved!==next){approved?.removeEventListener('click',go,true);approved=next;if(approved&&!approved.dataset.studentLink){approved.dataset.studentLink='true';approved.addEventListener('click',go,true)}}};mount();const observer=new MutationObserver(mount);observer.observe(document.body,{childList:true,subtree:true});return()=>{observer.disconnect();enquiry?.remove();approved?.removeEventListener('click',go,true)}},[]);return null}
+export default function AdminLayout({children}:{children:ReactNode}){const path=usePathname();return <>{children}{path==='/admin'&&<DashboardCardLinks/>}</>}
