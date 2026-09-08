@@ -5,6 +5,7 @@ import type {ReactNode} from 'react'
 import {supabase} from '../../lib/supabase'
 import './enquiry-dashboard.css'
 import './marksheet-enhance.css'
+import './marksheet-professional.css'
 
 function DashboardCardLinks(){
  useEffect(()=>{let enquiry:HTMLAnchorElement|null=null;let approved:HTMLElement|null=null;let take:HTMLAnchorElement|null=null;let results:HTMLElement|null=null
@@ -20,17 +21,80 @@ function DashboardCardLinks(){
   mount();const observer=new MutationObserver(mount);observer.observe(document.body,{childList:true,subtree:true});return()=>{observer.disconnect();enquiry?.remove();take?.remove();approved?.removeEventListener('click',goStudents,true);results?.removeEventListener('click',goResults,true)}
  },[]);return null}
 
+const esc=(value:any)=>String(value??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]||c))
+const grade=(p:number)=>p>=90?'A+':p>=80?'A':p>=70?'B+':p>=60?'B':p>=50?'C+':p>=40?'C':p>=30?'D+':p>=20?'D':p>=10?'E+':'E'
+const result=(p:number)=>p>=30?'PASS':'FAIL'
+const dateText=(value:any)=>{if(!value)return '—';const d=new Date(String(value)+'T00:00:00');if(Number.isNaN(d.getTime()))return String(value);return d.toLocaleDateString('en-GB')}
+
 function EnhanceMarksheet(){
  useEffect(()=>{let cancelled=false;let timer:ReturnType<typeof setTimeout>|null=null
-  const run=async()=>{const {data}=await supabase.from('site_settings').select('key,value').in('key',['logo_url','school_logo','school_name','school_address']);if(cancelled)return;const settings=Object.fromEntries((data||[]).map(x=>[x.key,x.value]));const logo=settings.logo_url||settings.school_logo||''
-   if(!document.getElementById('individual-marksheet-print-style')){const style=document.createElement('style');style.id='individual-marksheet-print-style';style.textContent='@media print{body:has(.marksheetPreview[data-print-target]) .studentProfilePage>*{display:none!important}body:has(.marksheetPreview[data-print-target]) .marksheetPreview:not([data-print-target]){display:none!important}body:has(.marksheetPreview[data-print-target]) .marksheetPreview[data-print-target]{display:block!important;max-width:none!important;margin:0!important;box-shadow:none!important;border:2px solid #000!important;page-break-after:auto!important}body:has(.marksheetPreview[data-print-target]) .marksheetTools{display:none!important}}';document.head.appendChild(style)}
-   const printOne=(sheet:HTMLElement,download=false)=>{const previousTitle=document.title;const student=document.querySelector('.profileSummary h2')?.textContent?.trim()||'Student';const exam=sheet.querySelector('.boardBadge')?.textContent?.trim()||'Marksheet';document.title=`${student} - ${exam}`;document.querySelectorAll<HTMLElement>('.marksheetPreview').forEach(x=>x.removeAttribute('data-print-target'));sheet.setAttribute('data-print-target','true');if(download)document.body.setAttribute('data-save-pdf','true');window.print();setTimeout(()=>{sheet.removeAttribute('data-print-target');document.body.removeAttribute('data-save-pdf');document.title=previousTitle},1000)}
-   const addTools=(sheet:HTMLElement)=>{if(sheet.previousElementSibling?.classList.contains('marksheetTools'))return;const tools=document.createElement('div');tools.className='marksheetTools';const print=document.createElement('button');print.type='button';print.className='marksheetToolBtn print';print.textContent='🖨 Print Marksheet';print.onclick=()=>printOne(sheet,false);const download=document.createElement('button');download.type='button';download.className='marksheetToolBtn download';download.textContent='⬇ Download PDF';download.title='Choose Save as PDF in the print window';download.onclick=()=>printOne(sheet,true);tools.append(print,download);sheet.parentElement?.insertBefore(tools,sheet)}
-   const apply=()=>{if(cancelled||!window.location.pathname.startsWith('/admin/students/'))return false;const sheets=document.querySelectorAll<HTMLElement>('.marksheetPreview.bsebStyle');if(!sheets.length)return false;for(const sheet of Array.from(sheets))addTools(sheet);const sheet=sheets[0];const header=sheet.querySelector('.boardHeader');const summary=sheet.querySelector('.sheetMeta');if(header){const seal=header.querySelector('.boardSeal');if(logo&&seal&&!header.querySelector('.schoolLogo')){const img=document.createElement('img');img.src=logo;img.className='schoolLogo';img.alt='School Logo';seal.replaceWith(img)}const small=header.querySelector('small');if(small&&settings.school_name)small.textContent=settings.school_name;const p=header.querySelector('p');if(p&&settings.school_address)p.textContent=settings.school_address}
-    if(summary&&!summary.querySelector('.studentSheetPhoto')){const source=document.querySelector<HTMLElement>('.profilePhoto img') as HTMLImageElement|null;if(source?.src){const img=document.createElement('img');img.src=source.src;img.className='studentSheetPhoto';img.alt='Student Photo';summary.appendChild(img)}}return true}
-   let attempts=0;const tick=()=>{if(cancelled)return;const found=apply();if(!found&&attempts<20){attempts++;timer=setTimeout(tick,250)}};tick()
-   if(new URLSearchParams(window.location.search).get('tab')==='results'){let tries=0;const open=()=>{if(cancelled)return;const btn=Array.from(document.querySelectorAll<HTMLButtonElement>('button')).find(b=>b.textContent?.includes('Results & Marksheet'));if(btn){btn.click();setTimeout(tick,100);return}if(tries++<20)timer=setTimeout(open,250)};setTimeout(open,250)}
-  };run();return()=>{cancelled=true;if(timer)clearTimeout(timer)}
+  const run=async()=>{
+   const sid=window.location.pathname.split('/').pop()||''
+   if(!sid)return
+   const [{data:settingsData},{data:student},{data:resultsData}]=await Promise.all([
+    supabase.from('site_settings').select('key,value').in('key',['logo_url','school_logo','school_name','school_address']),
+    supabase.from('student_profiles').select('*').eq('id',sid).single(),
+    supabase.from('student_results').select('*').eq('student_profile_id',sid).order('exam_date',{ascending:false})
+   ])
+   if(cancelled||!student)return
+   let admission:any=null
+   if(student.admission_id){const q=await supabase.from('admissions').select('application_number,student_unique_id,application_no').eq('id',student.admission_id).maybeSingle();admission=q.data}
+   if(cancelled)return
+   const settings=Object.fromEntries((settingsData||[]).map((x:any)=>[x.key,x.value]))
+   const logo=settings.logo_url||settings.school_logo||''
+   const schoolName=settings.school_name||'NEW SUNRISE PUBLIC SCHOOL'
+   const schoolAddress=settings.school_address||'Kallyangaon, Bihar – 854317'
+   const application=student.application_number||student.application_no||admission?.application_number||admission?.application_no||'—'
+   const rows=resultsData||[]
+   const map=new Map<string,any>()
+   for(const x of rows){const key=x.result_set_id||`${x.exam_name||''}|${x.session||''}|${x.exam_date||''}`;if(!map.has(key))map.set(key,{exam_name:x.exam_name||'Examination',session:x.session||'—',exam_date:x.exam_date||'',rows:[]});map.get(key).rows.push(x)}
+   const groups=[...map.values()]
+   const makeSheet=(g:any,index:number)=>{
+    const cleanRows=g.rows||[]
+    const full=cleanRows.reduce((n:any,x:any)=>n+Number(x.max_marks||0),0)
+    const obtained=cleanRows.reduce((n:any,x:any)=>n+Number(x.marks||0),0)
+    const pct=full?obtained/full*100:0
+    const overall=grade(pct);const final=result(pct);const badgeClass=final==='PASS'?'pass':'fail'
+    const photo=student.student_photo_url?`<img class="proPhoto" src="${esc(student.student_photo_url)}" alt="Student Photo">`:'<div class="proPhotoPlaceholder">PHOTO</div>'
+    const logoHtml=logo?`<img class="proLogo" src="${esc(logo)}" alt="School Logo">`:'<div class="proLogoFallback">NSPS</div>'
+    const subjectRows=cleanRows.map((x:any,i:number)=>{const m=Number(x.max_marks||0),o=Number(x.marks||0),p=m?Math.max(0,Math.min(100,o/m*100)):0;const r=result(p);return `<tr><td>${i+1}</td><td>${esc(x.subject)}</td><td>${m}</td><td>${o}</td><td>${p.toFixed(2)}%</td><td>${grade(p)}</td><td class="${r==='PASS'?'resultPass':'resultFail'}">${r}</td></tr>`}).join('')
+    return `<div class="proMarksheet" data-sheet-index="${index}">
+      <div class="proHeader"><div class="proLogoWrap">${logoHtml}</div><div class="proSchool"><p class="proSchoolName">${esc(schoolName)}</p><p class="proSchoolAddress">${esc(schoolAddress)}</p><p class="proSchoolMotto">KNOWLEDGE • CHARACTER • A BRIGHTER FUTURE</p></div><div class="proResultBadge ${badgeClass}"><strong>${final}</strong><span>✓</span></div></div>
+      <div class="proStatement">STATEMENT OF MARKS</div>
+      <div class="proExamBar"><div class="proExamItem"><b>Exam Name</b><strong>${esc(g.exam_name)}</strong></div><div class="proExamItem"><b>Date of Exam</b><strong>${esc(dateText(g.exam_date))}</strong></div><div class="proExamItem"><b>Session</b><strong>${esc(g.session)}</strong></div><div class="proExamItem"><b>Final Result</b><strong>${final}</strong></div></div>
+      <div class="proDetailsTitle">STUDENT DETAILS</div>
+      <div class="proDetails"><div class="proDetailsGrid"><div class="proDetail"><b>Student Name</b>${esc(student.student_name)}</div><div class="proDetail"><b>Student ID</b>${esc(student.student_id||admission?.student_unique_id)}</div><div class="proDetail"><b>Father's Name</b>${esc(student.father_name)}</div><div class="proDetail"><b>Mother's Name</b>${esc(student.mother_name)}</div><div class="proDetail"><b>Class</b>${esc(student.class_name)}</div><div class="proDetail"><b>Roll Number</b>${esc(student.roll_number)}</div><div class="proDetail"><b>Date of Birth</b>${esc(dateText(student.dob))}</div><div class="proDetail"><b>Application No.</b>${esc(application)}</div><div class="proDetail"><b>Admission Date</b>${esc(dateText(student.admission_date))}</div><div class="proDetail"><b>Mobile</b>${esc(student.phone)}</div></div><div class="proPhotoBox">${photo}<span class="proPhotoCaption">STUDENT PHOTO</span></div></div>
+      <div class="proSectionTitle">SUBJECT WISE MARKS</div>
+      <div class="proMarksWrap"><table class="proMarksTable"><thead><tr><th style="width:6%">S.No.</th><th style="width:28%">Subject</th><th style="width:12%">Full Marks</th><th style="width:13%">Obtained</th><th style="width:13%">Percentage</th><th style="width:11%">Grade</th><th style="width:12%">Result</th></tr></thead><tbody>${subjectRows||'<tr><td colspan="7">No marks entered</td></tr>'}</tbody></table></div>
+      <div class="proSummary"><div class="proSummaryCard"><b>Total Full Marks</b><strong>${full}</strong></div><div class="proSummaryCard"><b>Total Obtained</b><strong>${obtained}</strong></div><div class="proSummaryCard"><b>Overall Percentage</b><strong>${pct.toFixed(2)}%</strong></div><div class="proSummaryCard"><b>Overall Grade</b><strong>${overall}</strong></div><div class="proSummaryCard"><b>Final Result</b><strong>${final}</strong></div></div>
+      <div class="proLower"><div class="proBox"><div class="proBoxTitle">GRADE SCALE</div><div class="proGradeGrid"><div class="proGradeCell">90–100 <b>A+</b></div><div class="proGradeCell">80–89 <b>A</b></div><div class="proGradeCell">70–79 <b>B+</b></div><div class="proGradeCell">60–69 <b>B</b></div><div class="proGradeCell">50–59 <b>C+</b></div><div class="proGradeCell">40–49 <b>C</b></div><div class="proGradeCell">30–39 <b>D+</b></div><div class="proGradeCell">20–29 <b>D</b></div><div class="proGradeCell">10–19 <b>E+</b></div><div class="proGradeCell">0–9 <b>E</b></div></div></div><div class="proBox"><div class="proBoxTitle">IMPORTANT NOTE</div><div class="proNotes"><ul><li>Overall pass percentage: 30% or above.</li><li>Below 30% is treated as FAIL.</li><li>Grade is calculated automatically from marks obtained.</li><li>This marksheet is generated from the school's academic record.</li></ul></div></div></div>
+      <div class="proFooter"><div class="proSign"><div class="proSignLine"></div><b>Class Teacher</b><span>Signature</span></div><div class="proStamp">${esc(schoolName)}<br>OFFICIAL SCHOOL SEAL<br>AUTHORIZED</div><div class="proSign"><div class="proSignLine"></div><b>Principal</b><span>Signature</span></div></div>
+      <div class="proFooterBar">BETTER EDUCATION • BRIGHTER TOMORROW</div>
+    </div>`
+   }
+   const apply=()=>{
+    if(cancelled||!window.location.pathname.startsWith('/admin/students/'))return false
+    const old=document.querySelector<HTMLElement>('.marksheetPreview.bsebStyle')
+    if(!old)return false
+    const parent=old.parentElement;if(!parent)return false
+    parent.querySelectorAll('.proMarksToolsWrap').forEach(x=>x.remove())
+    parent.querySelectorAll('.proMarksheet').forEach(x=>x.remove())
+    const targetGroups=groups.length?groups:[{exam_name:'Examination',session:'—',exam_date:'',rows:[]}]
+    targetGroups.forEach((g,i)=>{
+      const tools=document.createElement('div');tools.className='marksheetTools proMarksToolsWrap'
+      const print=document.createElement('button');print.type='button';print.className='marksheetToolBtn print';print.textContent='🖨 Print Marksheet'
+      const download=document.createElement('button');download.type='button';download.className='marksheetToolBtn download';download.textContent='⬇ Download PDF';download.title='Choose Save as PDF in the print window'
+      const holder=document.createElement('div');holder.innerHTML=makeSheet(g,i);const sheet=holder.firstElementChild as HTMLElement
+      const printOne=(savePdf:boolean)=>{const title=document.title;document.title=`${student.student_name||'Student'} - ${g.exam_name||'Marksheet'}`;document.querySelectorAll<HTMLElement>('.proMarksheet').forEach(x=>x.removeAttribute('data-print-target'));sheet.setAttribute('data-print-target','true');if(savePdf)document.body.setAttribute('data-save-pdf','true');window.print();setTimeout(()=>{sheet.removeAttribute('data-print-target');document.body.removeAttribute('data-save-pdf');document.title=title},1200)}
+      print.onclick=()=>printOne(false);download.onclick=()=>printOne(true)
+      parent.appendChild(tools);parent.appendChild(sheet)
+    })
+    old.remove()
+    return true
+   }
+   let attempts=0;const tick=()=>{if(cancelled)return;const found=apply();if(!found&&attempts<30){attempts++;timer=setTimeout(tick,250)}};tick()
+  }
+  run();return()=>{cancelled=true;if(timer)clearTimeout(timer)}
  },[]);return null}
 
 export default function AdminLayout({children}:{children:ReactNode}){const path=usePathname();return <>{children}{path==='/admin'&&<DashboardCardLinks/>}{path.startsWith('/admin/students/')&&<EnhanceMarksheet/>}</>}
