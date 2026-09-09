@@ -1,0 +1,48 @@
+name: Fix school formatting
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply formatting fixes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          root = Path('.')
+          skip = {'.git', '.next', 'node_modules'}
+          for p in root.rglob('*'):
+              if not p.is_file() or any(x in skip for x in p.parts):
+                  continue
+              try:
+                  s = p.read_text(encoding='utf-8')
+              except Exception:
+                  continue
+              old = s
+              s = s.replace('Kallyangaon', 'Kalyangaon').replace('KALLYANGAON', 'KALYANGAON')
+              s = s.replace('Kallyangao', 'Kalyangaon').replace('Kalyangao', 'Kalyangaon')
+              if p.as_posix() == 'app/admin/results/page.tsx':
+                  s = re.sub(r"const classes=useMemo\(\(\)=>Array\.from\(new Set\(students\.map\(s=>s\.class_name\)\.filter\(Boolean\) as string\[\]\)\)\.sort\([^;]+\),\[students\]\)", "const classes=useMemo(()=>['Nursery','LKG','UKG','Class 1','Class 2','Class 3','Class 4','Class 5','Class 6','Class 7','Class 8'],[])", s)
+                  s = s.replace("<label>Exam Date<input type=\"date\" value={examDate} onChange={e=>setExamDate(e.target.value)}/></label>", "<label>Exam Date<input type=\"text\" inputMode=\"numeric\" value={examDate ? fmtDate(examDate) : ''} onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,'').slice(0,8); if(v.length===8){const d=v.slice(0,2),m=v.slice(2,4),y=v.slice(4,8); setExamDate(`${y}-${m}-${d}`)} else setExamDate('')}} placeholder=\"dd/mm/yyyy\" maxLength={10}/></label>")
+              if s != old:
+                  p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Fix class options, Kalyangaon spelling and date format"
+            git push
+          fi
