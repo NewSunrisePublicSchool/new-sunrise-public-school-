@@ -1,0 +1,39 @@
+name: Fix Results dashboard button
+
+on:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix Results card navigation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('app/admin/layout.tsx')
+          s = p.read_text()
+          old = "x.textContent?.trim().startsWith('Results')"
+          new = "x.textContent?.includes('Results')"
+          if old in s:
+              p.write_text(s.replace(old, new, 1))
+              print('Results selector fixed')
+          else:
+              print('Selector already fixed; no change needed')
+          PY
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/admin/layout.tsx
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Fix Results dashboard button navigation"
+            git push
+          fi
