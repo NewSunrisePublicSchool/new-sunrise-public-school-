@@ -8,17 +8,19 @@ import './marksheet-enhance.css'
 import './marksheet-professional.css'
 
 function DashboardCardLinks(){
- useEffect(()=>{let enquiry:HTMLAnchorElement|null=null;let approved:HTMLElement|null=null;let take:HTMLAnchorElement|null=null;let results:HTMLElement|null=null
+ useEffect(()=>{let enquiry:HTMLAnchorElement|null=null;let approved:HTMLElement|null=null;let take:HTMLAnchorElement|null=null;let results:HTMLElement|null=null;let fees:HTMLElement|null=null
   const goStudents=(e:Event)=>{e.preventDefault();e.stopImmediatePropagation();window.location.href='/admin/students'}
   const goResults=(e:Event)=>{e.preventDefault();e.stopImmediatePropagation();window.location.href='/admin/results'}
+  const goFees=(e:Event)=>{e.preventDefault();e.stopImmediatePropagation();window.location.href='/admin/fees'}
   const mount=()=>{const grid=document.querySelector<HTMLElement>('.dashboardActionGrid');if(!grid)return
    if(!enquiry){enquiry=document.createElement('a');enquiry.href='/admin/enquiries';enquiry.className='dashboardActionCard enquiryActionCard';enquiry.innerHTML='<span class="actionIcon">✉️</span><span class="actionText"><b>Enquiries</b><small>View, manage and reply to enquiries received from the school website.</small></span><span class="actionCount">School enquiries</span><span class="actionArrow">→</span>';grid.appendChild(enquiry)}
    if(!take){take=document.createElement('a');take.href='/admin/take-admission';take.className='dashboardActionCard takeActionCard';take.innerHTML='<span class="actionIcon">📝</span><span class="actionText"><b>Take Admission</b><small>Directly admit a new student and create portal access.</small></span><span class="actionCount">Direct admission</span><span class="actionArrow">→</span>';grid.appendChild(take)}
    const cards=grid.querySelectorAll<HTMLElement>('.dashboardActionCard')
    const nextApproved=Array.from(cards).find(x=>x.textContent?.includes('Approved Students'))||null;if(approved!==nextApproved){approved?.removeEventListener('click',goStudents,true);approved=nextApproved;if(approved&&!approved.dataset.studentLink){approved.dataset.studentLink='true';approved.addEventListener('click',goStudents,true)}}
    const nextResults=Array.from(cards).find(x=>x.textContent?.trim().startsWith('Results'))||null;if(results!==nextResults){results?.removeEventListener('click',goResults,true);results=nextResults;if(results&&!results.dataset.resultLink){results.dataset.resultLink='true';results.addEventListener('click',goResults,true)}}
+   const nextFees=Array.from(cards).find(x=>x.textContent?.includes('Fees Management'))||null;if(fees!==nextFees){fees?.removeEventListener('click',goFees,true);fees=nextFees;if(fees&&!fees.dataset.feeLink){fees.dataset.feeLink='true';fees.addEventListener('click',goFees,true)}}
   }
-  mount();const observer=new MutationObserver(mount);observer.observe(document.body,{childList:true,subtree:true});return()=>{observer.disconnect();enquiry?.remove();take?.remove();approved?.removeEventListener('click',goStudents,true);results?.removeEventListener('click',goResults,true)}
+  mount();const observer=new MutationObserver(mount);observer.observe(document.body,{childList:true,subtree:true});return()=>{observer.disconnect();enquiry?.remove();take?.remove();approved?.removeEventListener('click',goStudents,true);results?.removeEventListener('click',goResults,true);fees?.removeEventListener('click',goFees,true)}
  },[]);return null}
 
 const esc=(value:any)=>String(value??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]||c))
