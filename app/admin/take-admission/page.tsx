@@ -19,7 +19,10 @@ export default function TakeAdmissionPage(){
   if(aerr||!admission){setMessage(aerr?.message||'Admission could not be created.');setSaving(false);return}
   const {data:profile,error:perr}=await supabase.from('student_profiles').insert({admission_id:admission.id,student_id:studentId,student_name:form.student_name,dob:form.dob,class_name:form.class_name,father_name:form.father_name,mother_name:form.mother_name||null,phone:form.phone,email:form.email||null,address:form.address||null,roll_number:form.roll_number||null,admission_date:new Date().toISOString().slice(0,10),status:'active',monthly_fee:Number(form.monthly_fee||0),must_change_password:true}).select('id').single()
   if(perr||!profile){await supabase.from('admissions').delete().eq('id',admission.id);setMessage(perr?.message||'Student profile could not be created.');setSaving(false);return}
-  const {data:provision,error:provErr}=await supabase.functions.invoke('student-portal-v3',{body:{action:'provision',admission_id:admission.id}})
+  const {data:sessionData}=await supabase.auth.getSession()
+  const accessToken=sessionData.session?.access_token
+  if(!accessToken){setMessage('Admission created, but admin session expired. Please login again and open Approved Students.');setCreated({application,studentId,portalReady:false});setSaving(false);return}
+  const {data:provision,error:provErr}=await supabase.functions.invoke('student-portal-v3',{body:{action:'provision',admission_id:admission.id},headers:{Authorization:`Bearer ${accessToken}`}})
   if(provErr||provision?.error){setMessage(`Admission created, but portal login could not be provisioned: ${provErr?.message||provision?.error||'unknown error'}`);setCreated({application,studentId,portalReady:false});setSaving(false);return}
   setCreated({application,studentId,temporaryPassword:provision.temporary_password,portalReady:true});setMessage('Admission completed successfully ✓');setForm({student_name:'',dob:'',class_name:'',roll_number:'',father_name:'',mother_name:'',phone:'',email:'',address:'',monthly_fee:''});setSaving(false)
  }
