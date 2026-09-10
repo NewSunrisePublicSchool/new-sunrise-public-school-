@@ -37,8 +37,18 @@ jobs:
                   new_date='<label>Exam Date<input type="text" inputMode="numeric" value={examDate ? fmtDate(examDate) : \'\'} onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,\'\').slice(0,8); if(v.length===8){const d=v.slice(0,2),m=v.slice(2,4),y=v.slice(4,8); setExamDate(`${y}-${m}-${d}`)} else setExamDate(\'\')}} placeholder="dd/mm/yyyy" maxLength={10}/></label>'
                   s=s.replace(old_date,new_date)
               if p.as_posix() == 'app/admin/page.tsx':
-                  pattern=r'(<button className="dashboardActionCard" )onClick=\{\(\)=>setTab\(\'admissions\'\)\}(<span className="actionIcon">📅</span><span className="actionText"><b>Attendance</b>)'
-                  s=re.sub(pattern,r'\1onClick={()=>window.location.href="/admin/attendance"}\2',s)
+                  pattern=r'(<button className="dashboardActionCard featured" )onClick=\{\(\)=>setTab\(\'admissions\'\)\}'
+                  s=re.sub(pattern,r'\1onClick={()=>window.location.href="/admin/admissions"}',s)
+                  pattern2=r'(<button className="dashboardActionCard" )onClick=\{\(\)=>setTab\(\'admissions\'\)\}(<span className="actionIcon">👨‍🎓</span><span className="actionText"><b>Approved Students</b>)'
+                  s=re.sub(pattern2,r'\1onClick={()=>window.location.href="/admin/students"}\2',s)
+                  pattern3=r'(<button className="dashboardActionCard" )onClick=\{\(\)=>setTab\(\'admissions\'\)\}(<span className="actionIcon">🗂️</span><span className="actionText"><b>Application History</b>)'
+                  s=re.sub(pattern3,r'\1onClick={()=>window.location.href="/admin/admissions"}\2',s)
+              if p.as_posix() == 'app/admin/layout.tsx':
+                  if "StudentProfileDeleteButton" not in s:
+                      s=s.replace("import {supabase} from '../../lib/supabase'", "import {supabase} from '../../lib/supabase'\nimport StudentProfileDeleteButton from './StudentProfileDeleteButton'")
+                  s=s.replace('return null}</div>', 'return null}</div>')
+                  if '<StudentProfileDeleteButton/>' not in s:
+                      s=s.replace('<DashboardCardLinks/><EnhanceMarksheet/>', '<DashboardCardLinks/><EnhanceMarksheet/><StudentProfileDeleteButton/>')
               if s != old:
                   p.write_text(s, encoding='utf-8')
           PY
@@ -50,6 +60,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes"
           else
-            git commit -m "Fix complete class list and Attendance dashboard navigation"
+            git commit -m "Connect admissions workflow and student deletion"
             git push
           fi
