@@ -1,0 +1,86 @@
+name: Secure Admin Authentication
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/secure-admin.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  harden-admin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Harden admin authentication
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          page = Path('app/admin/page.tsx')
+          text = page.read_text()
+
+          old = "useEffect(()=>{supabase.auth.getSession().then(({data})=>setSession(data.session));const {data}=supabase.auth.onAuthStateChange((_e,s)=>setSession(s));return()=>data.subscription.unsubscribe()},[])"
+          new = "useEffect(()=>{let alive=true;const boot=async()=>{const {data}=await supabase.auth.getSession();if(!alive)return;const existing=data.session;if(existing&&!sessionStorage.getItem('nsps_admin_verified')){await supabase.auth.signOut();setSession(null);return}if(existing){const {data:admin}=await supabase.from('admin_users').select('user_id').eq('user_id',existing.user.id).maybeSingle();if(!admin){await supabase.auth.signOut();sessionStorage.removeItem('nsps_admin_verified');setSession(null);setMsg('This account is not authorized for the admin portal.');return}setSession(existing)}};boot();const {data}=supabase.auth.onAuthStateChange(async(_e,s)=>{if(!s){sessionStorage.removeItem('nsps_admin_verified');if(alive)setSession(null)}});return()=>{alive=false;data.subscription.unsubscribe()}},[])"
+          if old not in text:
+              raise SystemExit('Admin session initializer pattern not found')
+          text = text.replace(old, new, 1)
+
+          old_login = "async function login(e:any){e.preventDefault();setBusy(true);const {error}=await supabase.auth.signInWithPassword({email,password});setMsg(error?error.message:'Signed in');setBusy(false)}"
+          new_login = "async function login(e:any){e.preventDefault();setBusy(true);setMsg('');const cleanEmail=email.trim().toLowerCase();const {data,error}=await supabase.auth.signInWithPassword({email:cleanEmail,password});if(error){setMsg('Invalid admin email or password.');setBusy(false);return}if(!data.user){setMsg('Unable to sign in.');setBusy(false);return}const {data:admin,error:adminError}=await supabase.from('admin_users').select('user_id').eq('user_id',data.user.id).maybeSingle();if(adminError||!admin){await supabase.auth.signOut();sessionStorage.removeItem('nsps_admin_verified');setMsg('This account is not authorized for the admin portal.');setBusy(false);return}sessionStorage.setItem('nsps_admin_verified','1');setEmail('');setPassword('');setMsg('Signed in securely.');setSession(data.session);setBusy(false)}"
+          if old_login not in text:
+              raise SystemExit('Admin login function pattern not found')
+          text = text.replace(old_login, new_login, 1)
+
+          old_form = "<form onSubmit={login}><label>Email<input type=\"email\" placeholder=\"Admin email\" value={email} onChange={e=>setEmail(e.target.value)} required/></label><label>Password<input type=\"password\" placeholder=\"Password\" value={password} onChange={e=>setPassword(e.target.value)} required/></label><button disabled={busy}>{busy?'Signing in…':'Sign in securely'}</button></form>"
+          new_form = "<form onSubmit={login} autoComplete=\"off\"><label>Email<input type=\"email\" name=\"admin-login-email\" autoComplete=\"off\" placeholder=\"Admin email\" value={email} onChange={e=>setEmail(e.target.value)} required/></label><label>Password<input type=\"password\" name=\"admin-login-password\" autoComplete=\"new-password\" placeholder=\"Password\" value={password} onChange={e=>setPassword(e.target.value)} required/></label><button disabled={busy}>{busy?'Signing in…':'Sign in securely'}</button></form>"
+          if old_form not in text:
+              raise SystemExit('Admin login form pattern not found')
+          text = text.replace(old_form, new_form, 1)
+
+          old_logout = "<button onClick={()=>supabase.auth.signOut()}>⇥ Logout</button>"
+          new_logout = "<button onClick={async()=>{sessionStorage.removeItem('nsps_admin_verified');await supabase.auth.signOut();setSession(null);setEmail('');setPassword('')}}>⇥ Logout</button>"
+          if old_logout not in text:
+              raise SystemExit('Admin logout pattern not found')
+          text = text.replace(old_logout, new_logout, 1)
+
+          page.write_text(text)
+
+          layout = Path('app/admin/layout.tsx')
+          lt = layout.read_text()
+          old_import = "import {usePathname} from 'next/navigation'"
+          new_import = "import {usePathname,useRouter} from 'next/navigation'"
+          if old_import in lt:
+              lt = lt.replace(old_import,new_import,1)
+          old_start = "function DashboardCardLinks(){"
+          guard = "function AdminSecurityGuard(){\n useEffect(()=>{let alive=true;const check=async()=>{const {data:{session}}=await supabase.auth.getSession();if(!alive)return;if(!session){window.location.href='/admin';return}const {data:admin}=await supabase.from('admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle();if(!admin){sessionStorage.removeItem('nsps_admin_verified');await supabase.auth.signOut();window.location.href='/admin';return}};check();const {data}=supabase.auth.onAuthStateChange(()=>{check()});const timer=window.setInterval(check,60000);return()=>{alive=false;data.subscription.unsubscribe();window.clearInterval(timer)}},[]);return null}\n\nfunction DashboardCardLinks(){"
+          if old_start not in lt:
+              raise SystemExit('Admin layout insertion point not found')
+          lt = lt.replace(old_start,guard,1)
+          if "<AdminSecurityGuard/>" not in lt:
+              marker = "return <><DashboardCardLinks/>"
+              if marker in lt:
+                  lt = lt.replace(marker,"return <><AdminSecurityGuard/><DashboardCardLinks/>",1)
+              else:
+                  raise SystemExit('Admin layout render insertion point not found')
+          layout.write_text(lt)
+          PY
+
+      - name: Commit changes
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app/admin/page.tsx app/admin/layout.tsx
+          if git diff --cached --quiet; then
+            echo 'No changes needed.'
+            exit 0
+          fi
+          git commit -m 'Harden admin portal authentication and prevent autofill'
+          git push
