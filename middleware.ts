@@ -7,7 +7,13 @@ const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishabl
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname.replace(/\/$/, '') || '/'
-  if (!PUBLIC_PATHS.includes(path) || path === '/nsps-owner-7492-control' || path === '/site-inactive') return NextResponse.next()
+
+  // The private owner control panel and inactive landing page must always remain reachable.
+  if (path === '/nsps-owner-7492-control' || path === '/site-inactive') return NextResponse.next()
+
+  // Public website routes and the complete admin area use the same owner-controlled switch.
+  // When the website is inactive, the admin login/dashboard is also blocked.
+  if (!PUBLIC_PATHS.includes(path) && !path.startsWith('/admin')) return NextResponse.next()
 
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/owner_website_control?id=eq.true&select=is_active`, {
@@ -18,6 +24,7 @@ export async function middleware(req: NextRequest) {
     if (Array.isArray(data) && data[0]?.is_active === false) {
       const url = req.nextUrl.clone()
       url.pathname = '/site-inactive'
+      url.search = ''
       return NextResponse.redirect(url)
     }
   } catch {
@@ -26,4 +33,4 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next()
 }
 
-export const config = { matcher: ['/','/admission','/notices','/gallery','/enquiry'] }
+export const config = { matcher: ['/', '/admission', '/notices', '/gallery', '/enquiry', '/admin/:path*'] }
