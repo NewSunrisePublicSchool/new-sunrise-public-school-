@@ -7,21 +7,48 @@ import './enquiry-dashboard.css'
 import './marksheet-enhance.css'
 import './marksheet-professional.css'
 
+function FeatureGuard(){
+ const path=usePathname()
+ useEffect(()=>{
+  if(path==='/admin'||!path.startsWith('/admin/'))return
+  let cancelled=false
+  ;(async()=>{
+   const {data,error}=await supabase.from('owner_feature_controls').select('feature_key,enabled')
+   if(cancelled||error)return
+   const flags=Object.fromEntries((data||[]).map((x:any)=>[x.feature_key,x.enabled!==false]))
+   const map:Array<[string,string]>=[['/admin/admissions','admissions'],['/admin/students','approved_students'],['/admin/fees','fees'],['/admin/results','results'],['/admin/attendance','attendance'],['/admin/enquiries','enquiries'],['/admin/take-admission','take_admission']]
+   const match=map.find(([route])=>path===route||path.startsWith(route+'/'))
+   if(match&&flags[match[1]]===false)window.location.href='/admin'
+  })()
+  return()=>{cancelled=true}
+ },[path])
+ return null
+}
+
 function DashboardCardLinks(){
- useEffect(()=>{let enquiry:HTMLAnchorElement|null=null;let approved:HTMLElement|null=null;let take:HTMLAnchorElement|null=null;let results:HTMLElement|null=null;let fees:HTMLElement|null=null
-  const goStudents=(e:Event)=>{e.preventDefault();e.stopImmediatePropagation();window.location.href='/admin/students'}
-  const goResults=(e:Event)=>{e.preventDefault();e.stopImmediatePropagation();window.location.href='/admin/results'}
-  const goFees=(e:Event)=>{e.preventDefault();e.stopImmediatePropagation();window.location.href='/admin/fees'}
-  const mount=()=>{const grid=document.querySelector<HTMLElement>('.dashboardActionGrid');if(!grid)return
-   if(!enquiry){enquiry=document.createElement('a');enquiry.href='/admin/enquiries';enquiry.className='dashboardActionCard enquiryActionCard';enquiry.innerHTML='<span class="actionIcon">✉️</span><span class="actionText"><b>Enquiries</b><small>View, manage and reply to enquiries received from the school website.</small></span><span class="actionCount">School enquiries</span><span class="actionArrow">→</span>';grid.appendChild(enquiry)}
-   if(!take){take=document.createElement('a');take.href='/admin/take-admission';take.className='dashboardActionCard takeActionCard';take.innerHTML='<span class="actionIcon">📝</span><span class="actionText"><b>Take Admission</b><small>Directly admit a new student and create portal access.</small></span><span class="actionCount">Direct admission</span><span class="actionArrow">→</span>';grid.appendChild(take)}
+ useEffect(()=>{
+  let enquiry:HTMLAnchorElement|null=null, take:HTMLAnchorElement|null=null
+  let approved:HTMLElement|null=null,results:HTMLElement|null=null,fees:HTMLElement|null=null
+  let flags:Record<string,boolean>|null=null
+  const go=(href:string)=>(e:Event)=>{e.preventDefault();e.stopImmediatePropagation();window.location.href=href}
+  const loadFlags=async()=>{const {data}=await supabase.from('owner_feature_controls').select('feature_key,enabled');flags=Object.fromEntries((data||[]).map((x:any)=>[x.feature_key,x.enabled!==false]));mount()}
+  const removeText=(key:string,selector='.dashboardActionCard')=>{const cards=document.querySelectorAll<HTMLElement>(selector);cards.forEach(card=>{if(card.textContent?.includes(key)&&flags?.[keyToFeature(key)]===false)card.style.display='none';})}
+  const keyToFeature=(key:string)=>({'Approved Students':'approved_students','Results':'results','Fees Management':'fees','Attendance':'attendance','Admissions':'admissions','Faculty':'faculty','Notices':'notices','Gallery':'gallery','Site & Images':'site_images'} as Record<string,string>)[key]||''
+  const mount=()=>{
+   const grid=document.querySelector<HTMLElement>('.dashboardActionGrid');if(!grid||!flags)return
+   if(flags.enquiries!==false&&!enquiry){enquiry=document.createElement('a');enquiry.href='/admin/enquiries';enquiry.className='dashboardActionCard enquiryActionCard';enquiry.innerHTML='<span class="actionIcon">✉️</span><span class="actionText"><b>Enquiries</b><small>View, manage and reply to enquiries received from the school website.</small></span><span class="actionCount">School enquiries</span><span class="actionArrow">→</span>';grid.appendChild(enquiry)}
+   if(flags.take_admission!==false&&!take){take=document.createElement('a');take.href='/admin/take-admission';take.className='dashboardActionCard takeActionCard';take.innerHTML='<span class="actionIcon">📝</span><span class="actionText"><b>Take Admission</b><small>Directly admit a new student and create portal access.</small></span><span class="actionCount">Direct admission</span><span class="actionArrow">→</span>';grid.appendChild(take)}
+   grid.querySelectorAll<HTMLElement>('.dashboardActionCard').forEach(card=>{const label=Array.from(card.querySelectorAll('b')).map(x=>x.textContent||'').join(' ');const key=keyToFeature(label);if(key&&flags?.[key]===false)card.style.display='none'})
    const cards=grid.querySelectorAll<HTMLElement>('.dashboardActionCard')
-   const nextApproved=Array.from(cards).find(x=>x.textContent?.includes('Approved Students'))||null;if(approved!==nextApproved){approved?.removeEventListener('click',goStudents,true);approved=nextApproved;if(approved&&!approved.dataset.studentLink){approved.dataset.studentLink='true';approved.addEventListener('click',goStudents,true)}}
-   const nextResults=Array.from(cards).find(x=>x.textContent?.includes('Results'))||null;if(results!==nextResults){results?.removeEventListener('click',goResults,true);results=nextResults;if(results&&!results.dataset.resultLink){results.dataset.resultLink='true';results.addEventListener('click',goResults,true)}}
-   const nextFees=Array.from(cards).find(x=>x.textContent?.includes('Fees Management'))||null;if(fees!==nextFees){fees?.removeEventListener('click',goFees,true);fees=nextFees;if(fees&&!fees.dataset.feeLink){fees.dataset.feeLink='true';fees.addEventListener('click',goFees,true)}}
+   const nextApproved=Array.from(cards).find(x=>x.textContent?.includes('Approved Students')&&x.style.display!=='none')||null;if(approved!==nextApproved){approved?.removeEventListener('click',go('/admin/students'),true);approved=nextApproved;if(approved)approved.addEventListener('click',go('/admin/students'),true)}
+   const nextResults=Array.from(cards).find(x=>x.textContent?.includes('Results')&&x.style.display!=='none')||null;if(results!==nextResults){results?.removeEventListener('click',go('/admin/results'),true);results=nextResults;if(results)results.addEventListener('click',go('/admin/results'),true)}
+   const nextFees=Array.from(cards).find(x=>x.textContent?.includes('Fees Management')&&x.style.display!=='none')||null;if(fees!==nextFees){fees?.removeEventListener('click',go('/admin/fees'),true);fees=nextFees;if(fees)fees.addEventListener('click',go('/admin/fees'),true)}
   }
-  mount();const observer=new MutationObserver(mount);observer.observe(document.body,{childList:true,subtree:true});return()=>{observer.disconnect();enquiry?.remove();take?.remove();approved?.removeEventListener('click',goStudents,true);results?.removeEventListener('click',goResults,true);fees?.removeEventListener('click',goFees,true)}
- },[]);return null}
+  mount();loadFlags();const observer=new MutationObserver(mount);observer.observe(document.body,{childList:true,subtree:true})
+  return()=>{observer.disconnect();enquiry?.remove();take?.remove()}
+ },[])
+ return null
+}
 
 const esc=(value:any)=>String(value??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]||c))
 const grade=(p:number)=>p>=90?'A+':p>=80?'A':p>=70?'B+':p>=60?'B':p>=50?'C+':p>=40?'C':p>=30?'D+':p>=20?'D':p>=10?'E+':'E'
@@ -106,4 +133,4 @@ function EnhanceMarksheet(){
   return()=>{cancelled=true;if(timer)clearInterval(timer)}
  },[]);return null}
 
-export default function AdminLayout({children}:{children:ReactNode}){const path=usePathname();return <>{children}{path==='/admin'&&<DashboardCardLinks/>}{path.startsWith('/admin/students/')&&<EnhanceMarksheet/>}</>}
+export default function AdminLayout({children}:{children:ReactNode}){const path=usePathname();return <>{children}{path.startsWith('/admin')&&<FeatureGuard/>}{path==='/admin'&&<DashboardCardLinks/>}{path.startsWith('/admin/students/')&&<EnhanceMarksheet/>}</>}
