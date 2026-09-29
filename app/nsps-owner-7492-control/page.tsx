@@ -6,7 +6,7 @@ type Feature={feature_key:string,feature_name:string,description:string|null,ena
 type State={is_active:boolean,active_until:string|null,updated_at:string|null,features:Feature[]}
 
 export default function OwnerControl(){
- const [code,setCode]=useState(''),[state,setState]=useState<State|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[unlocked,setUnlocked]=useState(false),[activeUntil,setActiveUntil]=useState(''),[featureBusy,setFeatureBusy]=useState('')
+ const [code,setCode]=useState(''),[state,setState]=useState<State|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[unlocked,setUnlocked]=useState(false),[activeUntil,setActiveUntil]=useState(''),[featureBusy,setFeatureBusy]=useState(false)
  async function call(action:string,is_active?:boolean,providedCode=code,until=activeUntil){
   setBusy(true);setError('')
   try{const r=await fetch(FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:providedCode,action,is_active,active_until:until||null})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Request failed');setState({is_active:d.is_active,active_until:d.active_until??null,updated_at:d.updated_at,features:d.features||state?.features||[]});if(d.active_until!==undefined)setActiveUntil(d.active_until||'');return d}catch(e){setError(e instanceof Error?e.message:'Something went wrong');throw e}finally{setBusy(false)}
