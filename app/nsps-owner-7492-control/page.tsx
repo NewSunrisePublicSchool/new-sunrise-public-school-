@@ -1,7 +1,7 @@
 'use client'
 import {useEffect,useState} from 'react'
 
-const FUNCTION_URL='https://stypnhzdnsgmyngqkpmz.supabase.co/functions/v1/owner-control'
+const FUNCTION_URL='/api/owner-control'
 type Feature={feature_key:string,feature_name:string,description:string|null,enabled:boolean,updated_at:string|null}
 type State={is_active:boolean,active_until:string|null,updated_at:string|null,features:Feature[]}
 
@@ -9,9 +9,8 @@ export default function OwnerControl(){
  const [code,setCode]=useState(''),[state,setState]=useState<State|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[unlocked,setUnlocked]=useState(false),[activeUntil,setActiveUntil]=useState(''),[featureBusy,setFeatureBusy]=useState(false)
  async function call(action:string,is_active?:boolean,providedCode=code,until=activeUntil){
   setBusy(true);setError('')
-  try{const r=await fetch(FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:providedCode,action,is_active,active_until:until||null})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Request failed');setState({is_active:d.is_active,active_until:d.active_until??null,updated_at:d.updated_at,features:d.features||state?.features||[]});if(d.active_until!==undefined)setActiveUntil(d.active_until||'');return d}catch(e){setError(e instanceof Error?e.message:'Something went wrong');throw e}finally{setBusy(false)}
- }
- async function setFeature(feature_key:string,enabled:boolean){setFeatureBusy(true);setError('');try{const r=await fetch(FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,action:'set_feature',feature_key,enabled})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to update feature');await call('status',undefined,code)}catch(e){setError(e instanceof Error?e.message:'Unable to update feature')}finally{setFeatureBusy(false)}}
+  try{const r=await fetch(FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:providedCode,action,is_active,active_until:until||null}),cache:'no-store'});const d=await r.json();if(!r.ok)throw new Error(d.error||'Request failed');setState({is_active:d.is_active,active_until:d.active_until??null,updated_at:d.updated_at,features:d.features||state?.features||[]});if(d.active_until!==undefined)setActiveUntil(d.active_until||'');return d}catch(e){setError(e instanceof Error?e.message:'Something went wrong');throw e}finally{setBusy(false)}}
+ async function setFeature(feature_key:string,enabled:boolean){setFeatureBusy(true);setError('');try{const r=await fetch(FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,action:'set_feature',feature_key,enabled}),cache:'no-store'});const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to update feature');await call('status',undefined,code)}catch(e){setError(e instanceof Error?e.message:'Unable to update feature')}finally{setFeatureBusy(false)}}
  async function unlock(e:any){e.preventDefault();try{await call('status',undefined,code);setUnlocked(true)}catch{setUnlocked(false)}}
  useEffect(()=>{if(unlocked)call('status').catch(()=>{})},[unlocked])
  if(!unlocked)return <main style={styles.bg}><section style={styles.card}><div style={styles.icon}>🔐</div><h1 style={styles.h1}>Owner Control</h1><p style={styles.muted}>Private website management access</p><form onSubmit={unlock}><input autoFocus type="password" value={code} onChange={e=>setCode(e.target.value)} placeholder="Enter owner code" autoComplete="off" style={styles.input}/><button disabled={busy||!code} style={styles.primary}>{busy?'Checking…':'Unlock Control'}</button></form>{error&&<p style={styles.error}>{error}</p>}</section></main>
